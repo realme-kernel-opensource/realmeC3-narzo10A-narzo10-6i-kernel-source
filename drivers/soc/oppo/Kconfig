@@ -1,0 +1,37 @@
+#ifdef VENDOR_EDIT
+# Bin.Li@EXP.BSP.bootloader.bootflow, 2017/05/15, Add for config oppo  software common soft
+config OPPO_ARCH_FILE
+    bool "for build directory oppo"
+    ---help---
+    say Y to buid in
+
+config OPPO_COMMON_SOFT
+        bool "config oppo common software"
+        select OPPO_ARCH_FILE
+        help
+        define this config to get project verion from sharemem.
+        Maybe this value is from CDT or dynamic identify by hardware
+        id.
+
+config OPPO_DEVICE_IFNO
+        bool "config oppo devinfo"
+        select OPPO_ARCH_FILE
+        help
+        define this config to compile devinfo.c for device register.
+
+source "drivers/soc/oppo/oppo_project/Kconfig"
+source "drivers/soc/oppo/oppo_devinfo/Kconfig"
+
+source "drivers/soc/oppo/oppo_hypnus/Kconfig"
+#ifdef VENDOR_EDIT
+#//wenbin.liu@PSW.Kernel.MM, 2018/05/23, Add for Healthinfo monitor
+source "drivers/soc/oppo/oppo_healthinfo/Kconfig"
+#endif /* VENDOR_EDIT */
+#//Wen.Luo@BSP
+#Liang.Zhang@TECH.Storage.Stability.OPPO_SHUTDOWN_DETECT, 2019/04/28, Add for shutdown detect
+source "drivers/soc/oppo/oppo_shutdown_detect/Kconfig"
+
+#Kun.Hu@TECH.BSP.Stability.PHOENIX_PROJECT 2019/06/15, Add for PHOENIX_PROJECT
+source "drivers/soc/oppo/oppo_phoenix/Kconfig"
+#endif /* VENDOR_EDIT */
+

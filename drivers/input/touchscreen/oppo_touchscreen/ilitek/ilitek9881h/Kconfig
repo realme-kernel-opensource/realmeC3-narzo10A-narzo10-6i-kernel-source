@@ -1,0 +1,11 @@
+#ifdef VENDOR_EDIT
+#Added by MingQiang.Guo@Bsp.group.Tp for ilitek ilitek9881h ic driver
+
+config TOUCHPANEL_ILITEK_ILITEK9881H
+#	default y
+	bool "TP ilitek ilitek9881h IC enable or not for  OPPO"
+	---help---
+	say Y to enable driver for Touchpanel using ilitek ilitek9881h
+
+#endif
+

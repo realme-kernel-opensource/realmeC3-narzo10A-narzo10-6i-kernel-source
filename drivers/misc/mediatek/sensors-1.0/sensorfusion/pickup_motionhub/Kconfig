@@ -1,0 +1,4 @@
+
+config MTK_PICKUP_MOTIONHUB
+	bool "pickup_motionhub for MediaTek package"
+	default n

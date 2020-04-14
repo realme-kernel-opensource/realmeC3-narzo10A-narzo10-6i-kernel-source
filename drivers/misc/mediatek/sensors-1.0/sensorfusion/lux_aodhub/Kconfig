@@ -1,0 +1,4 @@
+
+config MTK_LUX_AODHUB
+	bool "lux_aodhub for MediaTek package"
+	default n

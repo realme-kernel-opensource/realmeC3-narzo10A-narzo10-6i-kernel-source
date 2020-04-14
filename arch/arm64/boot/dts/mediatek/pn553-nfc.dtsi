@@ -1,0 +1,79 @@
+&i2c3 {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        pn553@28 {
+                compatible = "mediatek,pn553nfc";
+                reg = <0x28>;
+                status = "okay";
+        };
+};
+
+/* NFC start */
+/* NFC GPIO standardization */
+&pio {
+       nfc_ven_high: nfc_ven_high {
+                pins_cmd_dat {
+                        pinmux = <PINMUX_GPIO54__FUNC_GPIO54>;
+                        slew-rate = <1>;
+                        output-high;
+                };
+        };
+        nfc_ven_low: nfc_ven_low {
+                pins_cmd_dat {
+                        pinmux = <PINMUX_GPIO54__FUNC_GPIO54>;
+                        slew-rate = <1>;
+                        output-low;
+                };
+        };
+        nfc_dwn_high: nfc_dwn_high {
+                pins_cmd_dat {
+                        pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
+                        slew-rate = <1>;
+                        output-high;
+                };
+        };
+        nfc_dwn_low: nfc_dwn_low {
+                pins_cmd_dat {
+                        pinmux = <PINMUX_GPIO19__FUNC_GPIO19>;
+                        slew-rate = <1>;
+                        output-low;
+                };
+        };
+        nfc_eint_as_int: nfc_eint_as_int {
+                pins_cmd_dat {
+                        pinmux = <PINMUX_GPIO6__FUNC_GPIO6>;
+                        slew-rate = <0>;
+                        bias-disable;
+                };
+        };
+
+        nfc_clk_req: nfc_clk_req {
+                pins_cmd_dat {
+                        pinmux = <PINMUX_GPIO11__FUNC_GPIO11>;
+                        slew-rate = <0>;
+                        bias-disable;
+                };
+        };
+        nfc_default: nfc_default {
+        };
+
+};
+
+&nfc553 {
+        pinctrl-names = "nfcdefault",
+                        "ven_high",
+                        "ven_low",
+                        "dwn_high",
+                        "dwn_low",
+                        "eint_as_int",
+                        "clk_req";
+        pinctrl-0 = <&nfc_default>;
+        pinctrl-1 = <&nfc_ven_high>;
+        pinctrl-2 = <&nfc_ven_low>;
+        pinctrl-3 = <&nfc_dwn_high>;
+        pinctrl-4 = <&nfc_dwn_low>;
+        pinctrl-5 = <&nfc_eint_as_int>;
+        pinctrl-6 = <&nfc_clk_req>;
+        status = "okay";
+};
+/* NFC end */

@@ -1,0 +1,4 @@
+
+config MTK_FFDHUB
+	bool "ffdhub for MediaTek package"
+	default n

@@ -1,0 +1,3 @@
+
+source "drivers/input/touchscreen/oppo_touchscreen/Goodix/Goodix_gt5688/Kconfig"
+source "drivers/input/touchscreen/oppo_touchscreen/Goodix/GT9286/Kconfig"

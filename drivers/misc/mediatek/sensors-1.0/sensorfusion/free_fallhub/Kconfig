@@ -1,0 +1,4 @@
+
+config MTK_FREE_FALLHUB
+	bool "free_fallhub for MediaTek package"
+	default n

@@ -1,0 +1,7 @@
+#ifdef VENDOR_EDIT
+#//wenbin.liu@PSW.Kernel.MM, 2018/05/23, Add for Healthinfo monitor
+config OPPO_HEALTHINFO
+bool "config oppo healthinfo"
+help
+    define this config to init oppo healthinfo.
+#endif /* VENDOR_EDIT */

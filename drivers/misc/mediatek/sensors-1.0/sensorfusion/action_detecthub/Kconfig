@@ -1,0 +1,4 @@
+
+config MTK_ACTION_DETECTHUB
+	bool "action_detecthub for MediaTek package"
+	default n

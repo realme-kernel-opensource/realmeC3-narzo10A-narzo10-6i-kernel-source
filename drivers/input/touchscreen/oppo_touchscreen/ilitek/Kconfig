@@ -1,0 +1,5 @@
+
+source "drivers/input/touchscreen/oppo_touchscreen/ilitek/ilitek9881h/Kconfig"
+source "drivers/input/touchscreen/oppo_touchscreen/ilitek/ilitek9881h_v2/Kconfig"
+source "drivers/input/touchscreen/oppo_touchscreen/ilitek/ilitek9881h_v3/Kconfig"
+

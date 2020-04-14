@@ -1,0 +1,12 @@
+
+#ifdef VENDOR_EDIT
+#Added by Kun.Wang@Bsp.group.Tp for Samsung s6d7at0 ic driver
+
+config TOUCHPANEL_SAMSUNG_S6D7AT0
+#	default y
+	bool "TP Samsung s6sy761 IC enable or not for OPPO"
+	---help---
+	say Y to enable driver for Touchpanel using Samsung s6d7at0
+
+#endif
+

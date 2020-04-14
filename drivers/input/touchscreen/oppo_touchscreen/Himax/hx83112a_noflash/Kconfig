@@ -1,0 +1,12 @@
+
+#ifdef VENDOR_EDIT
+#Added by ZhongWenjie@Bsp.group.Tp for himax hx833112A NOFLASH ic driver
+
+config TOUCHPANEL_HIMAX_HX83112A_NOFLASH
+#	default y
+	bool "TP himax hx83112a no-flash IC enable or not for OPPO"
+	---help---
+	say Y to enable driver for Touchpanel useing himax hx83112a no-flash
+
+#endif
+

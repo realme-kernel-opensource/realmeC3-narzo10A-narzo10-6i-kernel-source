@@ -1,0 +1,46 @@
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+/* Please modify i2c bus number according to your platform */
+&i2c7 {
+	rt9467@5b {
+		compatible = "richtek,rt9467";
+		reg = <0x5b>;
+		rt,intr_gpio_num = <20>;	/* direct defined GPIO num */
+		rt,intr_gpio = <&pio 20 0x0>;
+		interrupt-names = "wdtmri", "chg_mivr", "chg_aiclmeasi",
+			"attachi", "detachi", "pwr_rdy", "chg_statci","hvdcpi", "bst_olpi";
+		status = "okay";
+		/*
+		 * Charger name
+		 * Main charger: primary_chg
+		 * Slave charger: secondary_chg
+		 */
+		charger_name = "primary_chg";
+		regmap_name = "rt9467_primary";
+		regmap_represent_slave_addr = <0x5b>;
+		ichg = <1800000>;	/* uA */
+		aicr = <500000>;	/* uA */
+		mivr = <4400000>;	/* uV */
+		cv = <4350000>;		/* uV */
+		ieoc = <250000>;	/* uA */
+		safety_timer = <12>;	/* hour */
+		ircmp_resistor = <0>;	/* uohm */
+		ircmp_vclamp = <0>;		/* uV */
+		en_te;
+		en_wdt;
+		en_chgdet;
+		/* en_jeita; */
+		en_irq_pulse;
+	};
+};
+

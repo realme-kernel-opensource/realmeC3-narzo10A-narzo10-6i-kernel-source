@@ -1,0 +1,4 @@
+
+source "drivers/input/touchscreen/oppo_touchscreen/Samsung/S6SY761/Kconfig"
+source "drivers/input/touchscreen/oppo_touchscreen/Samsung/S6D7AT0/Kconfig"
+
