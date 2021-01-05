@@ -1,0 +1,7 @@
+#Kun.Hu@TECH.BSP.Stability.PHOENIX_PROJECT 2019/06/15, Add for PHOENIX_PROJECT
+#change 'y' to 'n', if you want fo close phoenix feature
+config OPPO_PHOENIX
+    bool "oppo phoenix project"
+    default y
+    help
+      define this config to init oppo phoenix project.
