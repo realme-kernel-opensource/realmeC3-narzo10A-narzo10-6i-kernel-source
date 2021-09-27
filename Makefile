@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0
 VERSION = 4
 PATCHLEVEL = 14
-SUBLEVEL = 141
+SUBLEVEL = 186
 EXTRAVERSION =
 NAME = Petit Gorille
 
@@ -274,7 +274,7 @@ include scripts/Kbuild.include
 
 #ifdef VENDOR_EDIT
 #Jianchao.Shi@PSW.BSP.CHG.Basic, 2019/05/09, sjc Add for 806 high/low temp aging test
-ifeq ($(OPPO_HIGH_TEMP_VERSION),true)
+ifeq ($(OPLUS_HIGH_TEMP_VERSION),true)
 KBUILD_CFLAGS += -DCONFIG_HIGH_TEMP_VERSION
 KBUILD_CPPFLAGS += -DCONFIG_HIGH_TEMP_VERSION
 endif
