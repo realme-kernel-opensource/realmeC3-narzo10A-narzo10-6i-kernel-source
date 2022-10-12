@@ -91,13 +91,13 @@
 /* vcu extended iova address*/
 #define VCU_PMEM0_IOVA(vcu_data)        (vcu_data->extmem.p_iova)
 #define VCU_DMEM0_IOVA(vcu_data)        (vcu_data->extmem.d_iova)
-#define VCU_SHMEM_SIZE 0x140000
+#define VCU_SHMEM_SIZE 0x150000
 
 #define MAP_SHMEM_ALLOC_BASE    0x80000000UL
-#define MAP_SHMEM_ALLOC_RANGE   0x08000000UL
+#define MAP_SHMEM_ALLOC_RANGE   VCU_SHMEM_SIZE
 #define MAP_SHMEM_ALLOC_END     (MAP_SHMEM_ALLOC_BASE + MAP_SHMEM_ALLOC_RANGE)
 #define MAP_SHMEM_COMMIT_BASE   0x88000000UL
-#define MAP_SHMEM_COMMIT_RANGE  0x08000000UL
+#define MAP_SHMEM_COMMIT_RANGE  VCU_SHMEM_SIZE
 #define MAP_SHMEM_COMMIT_END    (MAP_SHMEM_COMMIT_BASE + MAP_SHMEM_COMMIT_RANGE)
 
 #define MAP_SHMEM_MM_BASE       0x90000000UL
@@ -528,14 +528,14 @@ static int vcu_gce_set_inst_id(void *ctx, u64 gce_handle)
 			vcu_ptr->gce_info[i].v4l2_ctx = ctx;
 			vcu_ptr->gce_info[i].user_hdl = gce_handle;
 			mutex_unlock(&vcu_ptr->vcu_share);
-			pr_info("[VCU] %s ctx %p %llu create id %d\n",
-				__func__, ctx, gce_handle, i);
+			pr_info("[VCU] %s ctx %p hndl %llu create id %d\n",
+ 				__func__, ctx, gce_handle, i);
 			return i;
 		}
 	}
 	mutex_unlock(&vcu_ptr->vcu_share);
-	pr_info("[VCU] %s fail ctx %p %llu\n",
-		__func__, ctx, gce_handle);
+	pr_info("[VCU] %s fail ctx %p hndl %llu\n",
+ 		__func__, ctx, gce_handle);
 
 	return -1;
 }
@@ -543,14 +543,15 @@ static int vcu_gce_set_inst_id(void *ctx, u64 gce_handle)
 
 static int vcu_gce_get_inst_id(u64 gce_handle)
 {
-	int i;
+	int i, temp;
 
 	mutex_lock(&vcu_ptr->vcu_share);
 	for (i = 0; i < VCODEC_INST_MAX; i++) {
 		if (vcu_ptr->gce_info[i].user_hdl == gce_handle) {
+            temp = atomic_read(&vcu_ptr->gce_info[i].flush_done);
 			mutex_unlock(&vcu_ptr->vcu_share);
-			pr_info("[VCU] %s %llu get id %d\n",
-				__func__, gce_handle, i);
+			pr_info("[VCU] %s hndl %llu get id %d cnt %d\n",
+				__func__, gce_handle, i, temp);
 			return i;
 		}
 	}
@@ -561,16 +562,25 @@ static int vcu_gce_get_inst_id(u64 gce_handle)
 
 static void vcu_gce_clear_inst_id(void *ctx)
 {
-	int i;
+	int i, temp;
+	u64 gce_handle;
 
 	mutex_lock(&vcu_ptr->vcu_share);
 	for (i = 0; i < VCODEC_INST_MAX; i++) {
 		if (vcu_ptr->gce_info[i].v4l2_ctx == ctx) {
+			gce_handle = vcu_ptr->gce_info[i].user_hdl;
 			vcu_ptr->gce_info[i].v4l2_ctx = NULL;
 			vcu_ptr->gce_info[i].user_hdl = 0;
+			temp = atomic_read(&vcu_ptr->gce_info[i].flush_done);
+			atomic_set(&vcu_ptr->gce_info[i].flush_done, 0);
 			mutex_unlock(&vcu_ptr->vcu_share);
-			pr_info("[VCU] %s ctx %p freed id %d\n",
-				__func__, ctx, i);
+			if (temp > 0)
+				vcu_aee_print(
+					"%s ctx %p hndl %llu free id %d cnt %d\n",
+					__func__, ctx, gce_handle, i, temp);
+			else
+				pr_info("[VCU] %s ctx %p hndl %llu free id %d cnt %d\n",
+					__func__, ctx, gce_handle, i, temp);
 			return;
 		}
 	}
@@ -828,7 +838,11 @@ int vcu_set_codec_ctx(struct platform_device *pdev,
 int vcu_clear_codec_ctx(struct platform_device *pdev,
 		 void *codec_ctx, unsigned long type)
 {
-	vcu_gce_clear_inst_id(codec_ctx);
+	struct mtk_vcu *vcu = platform_get_drvdata(pdev);
+
+	mutex_lock(&vcu->vcu_gce_mutex[type]);
+ 	vcu_gce_clear_inst_id(codec_ctx);
+	mutex_unlock(&vcu->vcu_gce_mutex[type]);
 
 	return 0;
 }

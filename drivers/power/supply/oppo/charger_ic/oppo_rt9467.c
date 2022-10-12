@@ -4381,6 +4381,11 @@ int oppo_rt9467_reset_charger(void)
 	return 0;
 }
 
+int oppo_rt9467_set_hz_mode(bool en)
+{
+	return rt9467_enable_hz(rt9467,en);
+}
+
 bool oppo_rt9467_check_charger_resume(void)
 {
 	return true;
@@ -4770,6 +4775,7 @@ struct oppo_chg_operations  oppo_chg_rt9467_ops = {
 	.oppo_chg_reset_pe20 = oppo_rt9467_chg_reset_pe20,
 	.oppo_chg_set_high_vbus = oppo_rt9467_chg_set_high_vbus,
 //#endif
+	.oppo_chg_set_hz_mode = oppo_rt9467_set_hz_mode,
 	
 };
 

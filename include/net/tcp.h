@@ -114,6 +114,13 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
 				 * 63secs of retransmission with the
 				 * current initial RTO.
 				 */
+#ifdef VENDOR_EDIT
+//Yongyao.Song@PSW.NW.DATA.1097684,2017/10/02
+//modify for connect timeout too long
+//add for fin retrans too many
+#define TCP_ORPHAN_RETRIES 3
+#endif /*VENDOR_EDIT*/
+
 
 #define TCP_SYNACK_RETRIES 5	/* This is how may retries are done
 				 * when passive opening a connection.
@@ -1713,6 +1720,13 @@ static inline struct sk_buff *tcp_rtx_queue_head(const struct sock *sk)
 static inline struct sk_buff *tcp_rtx_queue_tail(const struct sock *sk)
 {
 	struct sk_buff *skb = tcp_send_head(sk);
+
+	//#ifdef ODM_WT_EDIT
+	//Fanghua.Zhu@ODM_WT.BSP.CONN.WIFI.BugID2701542, 2020/03/18, Add for KE about tcp_fragment+0x4a0_0x4b4
+	/* empty retransmit queue, for example due to zero window */
+	if (skb == tcp_write_queue_head(sk))
+		return NULL;
+	//#endif /* ODM_WT_EDIT */
 
 	return skb ? tcp_write_queue_prev(sk, skb) : tcp_write_queue_tail(sk);
 }

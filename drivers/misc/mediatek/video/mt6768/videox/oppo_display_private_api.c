@@ -103,8 +103,8 @@ static ssize_t oppo_display_set_cabc(struct device *dev,
 				disp_aal_set_dre_en(1);
 				printk("%s enable dre\n", __func__);
 			} else {
-				disp_aal_set_dre_en(0);
-				printk("%s disable dre\n", __func__);
+				disp_aal_set_dre_en(1);
+				printk("%s enable dre\n", __func__);
 			}
 			printk("%s %d\n", __func__, oppo_set_cabc);
 			//primary_display_set_cabc(oppo_set_cabc);

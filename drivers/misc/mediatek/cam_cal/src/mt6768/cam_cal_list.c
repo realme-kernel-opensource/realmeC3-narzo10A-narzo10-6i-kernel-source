@@ -29,9 +29,10 @@ struct stCAM_CAL_LIST_STRUCT g_camCalList[] = {
 	{MONET_LH_MACRO_GC2375H_SENSOR_ID, 0xA4, Common_read_region},
 	{MONETX_HLT_MACRO_GC2375H_SENSOR_ID, 0xA4, Common_read_region},
 	{MONETD_LH_DEPTH_GC2375H_SENSOR_ID, 0xA4, Common_read_region},
-	{MONETD_CXT_DEPTH_GC2375H_SENSOR_ID, 0xA4, Common_read_region},
 	{MONETX_HLT_MACRO_GC2385_SENSOR_ID, 0xA4, Common_read_region},
 	{MONETD_TRULY_OV12A10_SENSOR_ID, 0xA0, Common_read_region},
+	{MONET_GC5035_SENSOR_ID, 0xA8, Common_read_region},
+	{MONET_GC5035B_SENSOR_ID, 0xA8, Common_read_region},
 #else
 	{IMX519_SENSOR_ID, 0xA0, Common_read_region},
 	{S5K2T7SP_SENSOR_ID, 0xA4, Common_read_region},

@@ -947,7 +947,13 @@ static void ee_gen_ind_msg(struct aed_eerec *eerec)
 		return;
 
 	rep_msg->cmdType = AE_IND;
+//#ifdef VENDOR_EDIT
+//WenLong.Cai@NW.AP.Cfg, 2016/10/10
+//Modify for enable create DB file when modem crash on release build
+    //rep_msg->cmdId = AE_IND_EXP_RAISED;
+//#else
     rep_msg->cmdId = AE_IND_FATAL_RAISED;
+//#endif /* VENDOR_EDIT */
 	rep_msg->arg = AE_EE;
 	rep_msg->len = 0;
 	rep_msg->dbOption = eerec->db_opt;

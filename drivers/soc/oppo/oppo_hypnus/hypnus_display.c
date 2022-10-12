@@ -125,6 +125,10 @@ int fb_cb(struct notifier_block *nb, unsigned long val, void *data)
 }
 #endif /* CONFIG_DRM_MSM */
 
+static struct notifier_block fb_nb = {
+	.notifier_call = fb_cb,
+	.priority = INT_MAX,
+};
 
 int __init display_info_register(struct hypnus_data *hypdata)
 {

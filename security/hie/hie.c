@@ -709,6 +709,7 @@ u64 hie_get_iv(struct request *req)
 	u64 iv;
 	unsigned int bz_bits;
 	struct bio *bio = req->bio;
+	u32 hashed_info = bio->bi_crypt_ctx.hashed_info;
 
 	if (!req->q)
 		return 0;
@@ -736,6 +737,9 @@ u64 hie_get_iv(struct request *req)
 		iv = iv >> (bz_bits - PAGE_SHIFT);
 
 	iv = (ino << 32 | (iv & 0xFFFFFFFF));
+
+	if (hashed_info)
+		iv += hashed_info;
 
 	if (!iv)
 		iv = ~iv;

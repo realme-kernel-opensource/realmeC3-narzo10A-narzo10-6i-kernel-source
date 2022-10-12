@@ -103,7 +103,45 @@ static struct stCAM_CAL_CHECKSUM_STRUCT monet_hlt_front_gc5035_checksum[MAX_ITEM
 	{LSC_MTK_ITEM,0x0028,0x0774,0x0028,0x0775,0x55},
 	{MAX_ITEM,0xFFFF,0xFFFF,0xFFFF,0x0021,0x01},  // this line must haved
 };
+static struct stCAM_CAL_DATAINFO_STRUCT monet_hlt_custfront_gc5035_eeprom_data __attribute((unused))={
+	.sensorID= MONET_GC5035_SENSOR_ID,
+	.deviceID = 2,
+	.dataLength = 0x1400,
+	.sensorVendorid = 0x00090074,
+	.vendorPos = 0,
+	.sensorPos = 6,
+	.vendorByte = 2,
+	.dataBuffer = NULL,
+};
+static struct stCAM_CAL_CHECKSUM_STRUCT monet_hlt_custfront_gc5035_checksum[MAX_ITEM + 1] __attribute((unused))=
+{
+	{MODULE_ITEM,0x0000,0x001B,0x0042,0x0043,0x01},
+	{AWB_H_ITEM,0x0000,0x001B,0x0042,0x0043,0x01},
+	{AWB_M_ITEM,0x0054,0x0063,0x0068,0x0069,0x01},
+	{AWB_L_ITEM,0x0032,0x0041,0x0046,0x0047,0x01},
+	{LSC_MTK_ITEM,0x0C00,0x134B,0x134C,0x134D,0x01},
+	{MAX_ITEM,0xFFFF,0xFFFF,0xFFFF,0x0021,0x01},  // this line must haved
+};
+static struct stCAM_CAL_DATAINFO_STRUCT monet_hlt_front_gc5035b_eeprom_data __attribute((unused))={
+	.sensorID= MONET_GC5035B_SENSOR_ID,
+	.deviceID = 2,
+	.dataLength = 0x0776,
+	.sensorVendorid = 0x00100075,
+	.vendorPos = 1,
+	.sensorPos = 5,
+	.vendorByte = 1,
+	.dataBuffer = NULL,
+};
+static struct stCAM_CAL_CHECKSUM_STRUCT monet_hlt_front_gc5035b_checksum[MAX_ITEM + 1] __attribute((unused))=
+{
+	{MODULE_ITEM,0x0000,0x0008,0x0000,0x0009,0x55},
+	{AWB_H_ITEM,0x000A,0x0012,0x000A,0x0013,0x55},
+	{AWB_M_ITEM,0x0014,0x001C,0x0014,0x001D,0x55},
+	{AWB_L_ITEM,0x001E,0x0026,0x001E,0x0027,0x55},
+	{LSC_MTK_ITEM,0x0028,0x0774,0x0028,0x0775,0x55},
+	{MAX_ITEM,0xFFFF,0xFFFF,0xFFFF,0x0021,0x01},  // this line must haved
 
+};
 static struct stCAM_CAL_DATAINFO_STRUCT monet_hlt_macro_gc2375h_eeprom_data __attribute((unused))={
 	.sensorID= GC2375H_SENSOR_ID,
 	.deviceID = 0x10,
@@ -157,25 +195,6 @@ static struct stCAM_CAL_CHECKSUM_STRUCT monetd_lh_macro_gc2375h_checksum[MAX_ITE
 	{LSC_MTK_ITEM,0x0014,0x0760,0x0014,0x0761,0x55},
 	{MAX_ITEM,0xFFFF,0xFFFF,0xFFFF,0x0021,0x01},  // this line must haved
 };
-
-static struct stCAM_CAL_DATAINFO_STRUCT monetd_cxt_macro_gc2375h_eeprom_data __attribute((unused))={
-	.sensorID= MONETD_CXT_DEPTH_GC2375H_SENSOR_ID,
-	.deviceID = 0x10,
-	.dataLength = 0x0776,
-	.sensorVendorid = 0x00160005,
-	.vendorPos = 1,//module id
-	.sensorPos = 2,//position
-	.vendorByte = 1,
-	.dataBuffer = NULL,
-};
-static struct stCAM_CAL_CHECKSUM_STRUCT monetd_cxt_macro_gc2375h_checksum[MAX_ITEM + 1] __attribute((unused))=
-{
-	{MODULE_ITEM,0x0000,0x0008,0x0000,0x0009,0x55},
-	{AWB_H_ITEM,0x000A,0x0012,0x000A,0x0013,0x55},
-	{LSC_MTK_ITEM,0x0014,0x0760,0x0014,0x0761,0x55},
-	{MAX_ITEM,0xFFFF,0xFFFF,0xFFFF,0x0021,0x01},  // this line must haved
-};
-
 //monet-x
 static struct stCAM_CAL_DATAINFO_STRUCT monetx_truly_main_s5kgm1sp_eeprom_data __attribute((unused))={
 	.sensorID= S5KGM1SP_SENSOR_ID,
@@ -327,7 +346,7 @@ static __attribute((unused)) char* board_monet[20]  ={
 	"S98670GA1","S98670HA1","S98670JA1",
 	"S98670KA1","S98670LA1","S98670MA1",
 	"S98670NA1","S98670PA1","S98670WA1",
-	"NULL"
+	"S986703A1","S986704A1","NULL"
 };
 
 static __attribute((unused)) char* board_monetd[20] ={

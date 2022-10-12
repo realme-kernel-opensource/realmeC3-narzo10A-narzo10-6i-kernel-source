@@ -240,6 +240,86 @@ static int mt_set_updown_migrate(unsigned int up_migrate, unsigned int down_migr
 }
 
 
+static int mt_set_vpu_freq_limit(u32 core_id, u32 min, u32 max)
+{
+	/*struct vpu_lock_power vpu_lock_power;
+
+
+	vpu_lock_power.core = (0x1 << core_id);
+	vpu_lock_power.lock = true;
+	vpu_lock_power.priority = POWER_HAL;
+	vpu_lock_power.max_boost_value = max;
+	vpu_lock_power.min_boost_value = min;
+
+
+	return vpu_lock_set_power(&vpu_lock_power);*/
+	return 0;
+}
+
+static int mt_set_mdla_freq_limit(u32 core_id, u32 min, u32 max)
+{
+	/*struct mdla_lock_power mdla_lock_power;
+
+
+	mdla_lock_power.core = (0x1 << core_id);
+	mdla_lock_power.lock = true;
+	mdla_lock_power.priority = MDLA_OPP_POWER_HAL;
+	mdla_lock_power.max_boost_value = max;
+	mdla_lock_power.min_boost_value = min;
+
+
+	return mdla_lock_set_power(&mdla_lock_power);*/
+	return 0;
+
+
+}
+
+static int mt_set_cpunr_limit(struct hypnus_data *pdata, unsigned int index,
+		unsigned int min, unsigned int max)
+{
+#if 0
+	struct cluster_data *cluster;
+	struct cpumask *cluster_mask, pmask;
+	unsigned int cpu, now_cpus, need_cpus;
+	int ret;
+
+	if (index >=  pdata->cluster_nr)
+		return -EINVAL;
+
+	ret = now_cpus = cpu = 0;
+	cluster = &pdata->cluster_data[i];
+	cluster_mask = &cluster->cluster_mask;
+	now_cpus = cpu_available_count(cluster_mask);
+	need_cpus = prop->need_cpus[i];
+
+	if (need_cpus > now_cpus) {
+		cpumask_and(&pmask, cluster_mask, cpu_online_mask);
+		cpumask_and(&pmask, &pmask, cpu_isolated_mask);
+		for_each_cpu(cpu, &pmask) {
+			hypnus_unisolate_cpu(pdata, cpu);
+			if (need_cpus
+				<= cpu_available_count(cluster_mask))
+				break;
+		}
+	} else if (need_cpus < now_cpus) {
+		cpu = cpumask_first(cluster_mask);
+
+		for (j = cluster->num_cpus - 1; j >= 0; j--) {
+			if (cpu_isolated(cpu + j)
+				|| !cpu_online(cpu + j))
+				continue;
+			hypnus_isolate_cpu(pdata, cpu + j);
+			if (need_cpus
+				>= cpu_available_count(cluster_mask))
+				break;
+		}
+	}
+
+	ret |= (need_cpus != cpu_available_count(cluster_mask));
+	return ret;
+#endif
+	return 0;
+}
 
 static struct hypnus_chipset_operations mediatek_op = {
 	.name = "mediatek",

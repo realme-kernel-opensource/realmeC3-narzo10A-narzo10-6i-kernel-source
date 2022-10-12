@@ -24,7 +24,6 @@
 #include <linux/hardware_info.h>
 /* Zhen.Quan@Camera.Driver, 2019/11/4, add for [otp bringup] */
 #include "imgsensor_read_eeprom.h"
-#define ENABLE_GC2375H_CXT_OTP 1
 #include "kd_camera_typedef.h"
 #include "kd_imgsensor.h"
 #include "kd_imgsensor_define.h"
@@ -784,13 +783,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 		do {
 			*sensor_id = return_sensor_id();
 			if (*sensor_id == imgsensor_info.sensor_id) {
-#if ENABLE_GC2375H_CXT_OTP
-				if(!check_otp_data(&monetd_cxt_macro_gc2375h_eeprom_data, monetd_cxt_macro_gc2375h_checksum, sensor_id)){
-					break;
-				} else {
 					hardwareinfo_set_prop(HARDWARE_BACK_SUB_CAM_MOUDULE_ID, "CXT");
-				}
-#endif
 				printk("i2c write id: 0x%x, sensor id: 0x%x\n",
 					imgsensor.i2c_write_id, *sensor_id);
 				return ERROR_NONE;

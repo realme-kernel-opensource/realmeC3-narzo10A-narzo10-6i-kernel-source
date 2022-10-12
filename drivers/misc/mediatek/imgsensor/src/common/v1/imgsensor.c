@@ -822,6 +822,7 @@ struct match_hardwareinfo hardwareinfo_camera_name[] = {
 	{ SENSOR_DRVNAME_MONETX_HLT_MACRO_GC2385, "monetx_hlt_macro_gc2385", " 0x2385"},
 	{ SENSOR_DRVNAME_MONETD_TRULY_MAIN_OV12A10, "monetd_truly_main_ov12a10", " 0x1242"},
 	{ SENSOR_DRVNAME_MONET_HLT_CUSTFRONT_GC5035,   "monet_hlt_custfront_gc5035", " 0x5036"},
+	{ SENSOR_DRVNAME_MONET_HLT_FRONT_GC5035B,   "monet_hlt_front_gc5035B", " 0x5037"},
 	{"NULL", "UNKNOWN", "0"},
 };
 #endif /* ODM_WT_EDIT */
@@ -1415,6 +1416,8 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
 	case SENSOR_FEATURE_GET_SENSOR_HDR_CAPACITY:
 	case SENSOR_FEATURE_GET_MIPI_PIXEL_RATE:
+        /*Yang.Guo@Camera.Driver , 20200224, add for ITS--sensor_fusion*/
+        case SENSOR_FEATURE_GET_OFFSET_TO_START_OF_EXPOSURE:
 	case SENSOR_FEATURE_GET_PIXEL_RATE:
 	case SENSOR_FEATURE_SET_PDAF:
 	case SENSOR_FEATURE_SET_SHUTTER_FRAME_TIME:
@@ -1498,6 +1501,8 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
 	case SENSOR_FEATURE_GET_SENSOR_HDR_CAPACITY:
 	case SENSOR_FEATURE_GET_MIPI_PIXEL_RATE:
+        /*Yang.Guo@Camera.Driver , 20200224, add for ITS--sensor_fusion*/
+        case SENSOR_FEATURE_GET_OFFSET_TO_START_OF_EXPOSURE:
 	case SENSOR_FEATURE_GET_PIXEL_RATE:
 	{
 		MUINT32 *pValue = NULL;
@@ -2138,6 +2143,8 @@ static inline int adopt_CAMERA_HW_FeatureControl(void *pBuf)
 	case SENSOR_FEATURE_GET_PDAF_INFO:
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
 	case SENSOR_FEATURE_GET_SENSOR_HDR_CAPACITY:
+        /*Yang.Guo@Camera.Driver , 20200224, add for ITS--sensor_fusion*/
+        case SENSOR_FEATURE_GET_OFFSET_TO_START_OF_EXPOSURE:
 	case SENSOR_FEATURE_GET_MIPI_PIXEL_RATE:
 	case SENSOR_FEATURE_GET_PIXEL_RATE:
 	case SENSOR_FEATURE_SET_ISO:

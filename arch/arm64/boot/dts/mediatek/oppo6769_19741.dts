@@ -385,11 +385,19 @@
 
 /*the id config to project dts.*/
 &pio{
-	gpio_id0_default: gpio_id0_default {
+	gpio_id0_up: gpio_id0_up {
 		pins_cmd_dat {
 			pinmux = <PINMUX_GPIO38__FUNC_GPIO38>;
 			slew-rate = <0>;
-			bias-pull-up = <00>;
+			bias-pull-up;
+			input-enable;
+		};
+	};
+	gpio_id0_down: gpio_id0_down {
+		pins_cmd_dat {
+			pinmux = <PINMUX_GPIO38__FUNC_GPIO38>;
+			slew-rate = <0>;
+			bias-pull-down;
 			input-enable;
 		};
 	};
@@ -397,8 +405,10 @@
 
 &oppo_fp_common {
 	oppo,fp-id0 = <&pio 38 0x00>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&gpio_id0_default>;
+	pinctrl-names = "gpio_id0_up","gpio_id0_down";
+	pinctrl-0 = <&gpio_id0_up>;
+	pinctrl-1 = <&gpio_id0_down>;
+	status = "okay";
 };
 //Qingwen.Liu@RM.BSP.Fingerprint.Basic 2019/1/26 add for fpc fingerprint driver end
 //#endif //VENDOR_EDIT

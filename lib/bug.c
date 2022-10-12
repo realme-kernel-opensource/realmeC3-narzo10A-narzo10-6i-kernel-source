@@ -49,6 +49,12 @@
 #include <linux/rculist.h>
 
 extern struct bug_entry __start___bug_table[], __stop___bug_table[];
+#ifdef VENDOR_EDIT
+//Ke.Li@Rom.Security, KernelHotFix, 2019.9.29 Add for HotFix of kerne
+#ifdef CONFIG_QIHOO
+extern struct bug_entry *qihoo_patch_find_bug(unsigned long bugaddr);
+#endif
+#endif /* VENDOR_EDIT */
 static inline unsigned long bug_addr(const struct bug_entry *bug)
 {
 #ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
@@ -135,6 +141,14 @@ struct bug_entry *find_bug(unsigned long bugaddr)
 	for (bug = __start___bug_table; bug < __stop___bug_table; ++bug)
 		if (bugaddr == bug_addr(bug))
 			return bug;
+#ifdef VENDOR_EDIT
+//Ke.Li@Rom.Security, KernelHotFix, 2019.9.29 Add for HotFix of kernel
+#ifdef CONFIG_QIHOO
+	bug = qihoo_patch_find_bug(bugaddr);
+	if (bug)
+		return bug;
+#endif
+#endif /* VENDOR_EDIT */
 	return module_find_bug(bugaddr);
 }
 

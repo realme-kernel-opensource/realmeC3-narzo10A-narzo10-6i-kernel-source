@@ -151,6 +151,8 @@ static int fb_notifier_callback(struct notifier_block *nb, unsigned long event, 
 /****************************************/
 static int reset_mcu_delay = 0;
 static bool vbatt_higherthan_4180mv = false;
+static bool vbatt_higherthan_4400mv = false;
+static bool vbatt_higherthan_4000mv = false;
 static bool vbatt_lowerthan_3300mv = false;
 
 enum power_supply_property oppo_usb_props[] = {
@@ -2484,12 +2486,19 @@ static void oppo_chg_set_charging_current(struct oppo_chg_chip *chip)
 					charging_current=chip->limits.batt_temp_extend_t3_to_t4_ichg;
 					voter = TBATT;
 				}else if(chip->jeita_sm == BATT_TEMP_EXTEND_T4_TO_T5){
-					charging_current=chip->limits.batt_temp_extend_t4_to_t5_ichg;
+						if (vbatt_higherthan_4400mv) {
+							charging_current = chip->limits.batt_temp_extend_t4_to_t5_ichg3;
+						} else if (vbatt_higherthan_4000mv) {
+							charging_current = chip->limits.batt_temp_extend_t4_to_t5_ichg2;
+						} else {
+							charging_current = chip->limits.batt_temp_extend_t4_to_t5_ichg;
+						}
 					voter = TBATT;
 				}
 			}
 
-			if(chip->jeita_sm>=BATT_TEMP_EXTEND_T4_TO_T5){
+			if(chip->jeita_sm>=BATT_TEMP_EXTEND_T4_TO_T5 || 
+					(chip->tbatt_status >= BATTERY_STATUS__COLD_TEMP && chip->tbatt_status <= BATTERY_STATUS__COOL_TEMP)){
 				oppo_chg_set_charger_vol_9v(chip,0);
 			}else{
 				oppo_chg_set_charger_vol_9v(chip,1);
@@ -2692,7 +2701,9 @@ static void oppo_chg_set_charging_current(struct oppo_chg_chip *chip)
 #define BATT_TEMP_EXTEND_T1_TO_T2_ICHG_PART2 3200  //VBAT>4.18 
 #define BATT_TEMP_EXTEND_T2_TO_T3_ICHG 3200
 #define BATT_TEMP_EXTEND_T3_TO_T4_ICHG 2800
-#define BATT_TEMP_EXTEND_T4_TO_T5_ICHG 2700 //need vbus to 5v
+#define BATT_TEMP_EXTEND_T4_TO_T5_ICHG 1800 //need vbus to 5v
+#define BATT_TEMP_EXTEND_T4_TO_T5_ICHG2 1700
+#define BATT_TEMP_EXTEND_T4_TO_T5_ICHG3 1500
 
 #define CHARGE_CURRENT_CALLING_MA 1000
 extern int get_ap_temp(void);
@@ -3093,6 +3104,108 @@ static void oppo_chg_check_vbatt_higher_than_4180mv(struct oppo_chg_chip *chip)
 	                /*chip->tbatt_status,chip->batt_volt,vol_high_pre,vbatt_higherthan_4180mv);*/
 	        if (vol_high_pre != vbatt_higherthan_4180mv) {
                 vol_high_pre = vbatt_higherthan_4180mv;
+                oppo_chg_set_charging_current(chip);
+        }
+}
+
+static void oppo_chg_check_vbatt_higher_than_4000mv(struct oppo_chg_chip *chip)
+{
+        static bool vol_high_pre = false;
+        static int lower_count = 0, higher_count = 0;
+        static int tbatt_status_pre = BATTERY_STATUS__NORMAL;
+
+        if (!chip->mmi_chg) {
+                vbatt_higherthan_4000mv = false;
+                vol_high_pre = false;
+                lower_count = 0;
+                higher_count = 0;
+                return;
+        }
+		
+		if (oppo_vooc_get_fastchg_started() == true) {		
+			return;
+		}
+
+		if (tbatt_status_pre != chip->tbatt_status) {
+			tbatt_status_pre = chip->tbatt_status;
+			vbatt_higherthan_4000mv = false;
+			vol_high_pre = false;
+			lower_count = 0;
+			higher_count = 0;
+		}
+
+		if (chip->batt_volt > 4000) {
+                higher_count++;
+                if (higher_count > 2) {
+                        lower_count = 0;
+                        higher_count = 3;
+                        vbatt_higherthan_4000mv = true;
+                }
+	        } else if (vbatt_higherthan_4000mv) {
+				if (chip->batt_volt < 3850) {
+	                        lower_count++;
+	                        if (lower_count > 2) {
+	                                lower_count = 3;
+	                                higher_count = 0;
+	                                vbatt_higherthan_4000mv = false;
+	                        }
+	                }
+	        }
+	        /*chg_err(" tbatt_status:%d,batt_volt:%d,vol_high_pre:%d,vbatt_higherthan_4180mv:%d\n",*/
+	                /*chip->tbatt_status,chip->batt_volt,vol_high_pre,vbatt_higherthan_4180mv);*/
+	        if (vol_high_pre != vbatt_higherthan_4000mv) {
+                vol_high_pre = vbatt_higherthan_4000mv;
+                oppo_chg_set_charging_current(chip);
+        }
+}
+
+static void oppo_chg_check_vbatt_higher_than_4400mv(struct oppo_chg_chip *chip)
+{
+        static bool vol_high_pre = false;
+        static int lower_count = 0, higher_count = 0;
+        static int tbatt_status_pre = BATTERY_STATUS__NORMAL;
+
+        if (!chip->mmi_chg) {
+                vbatt_higherthan_4400mv = false;
+                vol_high_pre = false;
+                lower_count = 0;
+                higher_count = 0;
+                return;
+        }
+		
+		if (oppo_vooc_get_fastchg_started() == true) {		
+			return;
+		}
+
+		if (tbatt_status_pre != chip->tbatt_status) {
+			tbatt_status_pre = chip->tbatt_status;
+			vbatt_higherthan_4400mv = false;
+			vol_high_pre = false;
+			lower_count = 0;
+			higher_count = 0;
+		}
+
+		if (chip->batt_volt > 4400) {
+                higher_count++;
+                if (higher_count > 2) {
+                        lower_count = 0;
+                        higher_count = 3;
+                        vbatt_higherthan_4400mv = true;
+                }
+	        } else if (vbatt_higherthan_4400mv) {
+				if (chip->batt_volt < 4250) {
+	                        lower_count++;
+	                        if (lower_count > 2) {
+	                                lower_count = 3;
+	                                higher_count = 0;
+	                                vbatt_higherthan_4400mv = false;
+	                        }
+	                }
+	        }
+	        /*chg_err(" tbatt_status:%d,batt_volt:%d,vol_high_pre:%d,vbatt_higherthan_4180mv:%d\n",*/
+	                /*chip->tbatt_status,chip->batt_volt,vol_high_pre,vbatt_higherthan_4180mv);*/
+	        if (vol_high_pre != vbatt_higherthan_4400mv) {
+                vol_high_pre = vbatt_higherthan_4400mv;
                 oppo_chg_set_charging_current(chip);
         }
 }
@@ -3648,11 +3761,18 @@ static bool oppo_chg_check_tbatt_is_good(struct oppo_chg_chip *chip)
                         if (chip->soc != 100 && chip->batt_full == true
                                         && chip->charging_state == CHARGING_STATUS_FULL) {
                                 chip->batt_full = false;
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2020/05/26, add charge full form abnormal to normal temp restart charge*/
+				oppo_chg_voter_charging_start(chip, CHG_STOP_VOTER__FULL);
+#else
                                 chip->charging_state = CHARGING_STATUS_CCCV;
+#endif
                         }
                 }
                 chip->tbatt_status = tbatt_status;
                 vbatt_higherthan_4180mv = false;
+				vbatt_higherthan_4400mv = false;
+				vbatt_higherthan_4000mv = false;
                 if (oppo_vooc_get_allow_reading() == true) {
                         oppo_chg_set_float_voltage(chip);
                         oppo_chg_set_charging_current(chip);
@@ -4083,6 +4203,8 @@ void oppo_chg_variables_reset(struct oppo_chg_chip *chip, bool in)
                 chip->chging_on = false;
                 chip->charger_type = POWER_SUPPLY_TYPE_UNKNOWN;
                 vbatt_higherthan_4180mv = false;
+				vbatt_higherthan_4400mv = false;
+				vbatt_higherthan_4000mv = false;
         }
 
         /*chip->charger_volt = 5000;*/
@@ -4306,6 +4428,8 @@ static void oppo_chg_variables_init(struct oppo_chg_chip *chip)
 	chip->limits.batt_temp_extend_t2_to_t3_ichg = BATT_TEMP_EXTEND_T2_TO_T3_ICHG;
 	chip->limits.batt_temp_extend_t3_to_t4_ichg = BATT_TEMP_EXTEND_T3_TO_T4_ICHG;
 	chip->limits.batt_temp_extend_t4_to_t5_ichg = BATT_TEMP_EXTEND_T4_TO_T5_ICHG;
+	chip->limits.batt_temp_extend_t4_to_t5_ichg2 = BATT_TEMP_EXTEND_T4_TO_T5_ICHG2;
+	chip->limits.batt_temp_extend_t4_to_t5_ichg3 = BATT_TEMP_EXTEND_T4_TO_T5_ICHG3;
 
 	chip->limits.charge_current_calling_ma = CHARGE_CURRENT_CALLING_MA;
 #endif /*ODM_WT_EDIT*/
@@ -4677,6 +4801,8 @@ static void oppo_chg_protection_check(struct oppo_chg_chip *chip)
         }
 
         oppo_chg_check_vbatt_higher_than_4180mv(chip);
+		oppo_chg_check_vbatt_higher_than_4400mv(chip);
+		oppo_chg_check_vbatt_higher_than_4000mv(chip);
 
         oppo_chg_vfloat_over_check(chip);
 

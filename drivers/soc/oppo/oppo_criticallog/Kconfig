@@ -1,0 +1,8 @@
+#ifdef VENDOR_EDIT
+#//John.Xu@PhoneSw.AudioDriver.OppoDebug.CriticalLog, 2016/02/22, Add for critical_log
+config OPPO_CRITICALLOG
+	bool "config oppo critical log"
+	default y
+	help
+            define this config to init oppo critical log driver.
+#endif /* VENDOR_EDIT */

@@ -7124,7 +7124,12 @@ static const int oppo2_reserve[] = {
 /*TODO: maybe it should be increased if only has one memory zone*/
 	16, /*2GB<===>64MB,only DMA zone*/
 	22, /*3GB<===>88MB,only DMA zone*/
+#ifdef ODM_WT_EDIT
+/*weihuan.zhao@ODM_WT.BSP.Kernel.stability, 2020/03/26,adjust oppo2 page size from 96MB to 64MB on 4G ram to solve problem of 0 order page allocation failure */
+	16, /*4GB<===>64MB */
+#else
 	24, /*4GB<===>96MB,only DMA zone*/
+#endif /*ODM_WT_EDIT*/
 	11, /*6GB<===>88MB*/
 };
 

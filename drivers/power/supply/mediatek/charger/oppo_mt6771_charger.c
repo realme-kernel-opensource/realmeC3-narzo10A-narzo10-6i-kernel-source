@@ -967,7 +967,7 @@ int usb_port_volt_to_temp(int volt)
 		return usb_debug_temp;
 
 	usb_r = volt * USB_PORT_PULL_UP_R / (USB_PORT_PULL_UP_VOLT - volt);
-	//chg_debug("[UsbTemp] NTC_R = %d\n",usb_r);
+	pr_debug("[UsbTemp] NTC_R = %d\n",usb_r);
 
 	if (usb_r >= Usb_Port_Temperature_Table[0].TemperatureR) {
 		Usb_temp_Value = -40;
@@ -992,11 +992,11 @@ int usb_port_volt_to_temp(int volt)
 		Usb_temp_Value = (((usb_r - RES2) * TMP1) +
 			((RES1 - usb_r) * TMP2)) / (RES1 - RES2);
 	}
-	//chg_debug(
-	//	"[%s] %d %d %d %d %d %d\n",
-	//	__func__,
-	//	RES1, RES2, usb_r, TMP1,
-	//	TMP2, Usb_temp_Value);
+	pr_debug(
+		"[%s] %d %d %d %d %d %d\n",
+		__func__,
+		RES1, RES2, usb_r, TMP1,
+		TMP2, Usb_temp_Value);
 
 	return Usb_temp_Value;
 }
@@ -1038,7 +1038,7 @@ static void get_usb_temp(struct oppo_chg_chip *chip)
 	chip->usb_temp_l = usb_port_volt_to_temp(chip->usbtemp_volt_l);
 #endif /*ODM_WT_EDIT*/
 
-	//chg_err("usbtemp: %d, %d\n", chip->usb_temp_r, chip->usb_temp_l);
+	pr_debug("usbtemp: %d, %d\n", chip->usb_temp_r, chip->usb_temp_l);
 
 	return;
 }
@@ -1084,6 +1084,8 @@ static int oppo_usbtemp_monitor_main(void *data)
 	static int last_usb_temp_r = 25;
 	static int last_usb_temp_l = 25;
 	static bool init_flag = true;
+	static int retry_usb_temp_r = 25;
+	static int retry_usb_temp_l = 25;
 	struct oppo_chg_chip *chip = g_oppo_chip;
 
 	while (!kthread_should_stop() && dischg_flag == false) {
@@ -1109,16 +1111,28 @@ static int oppo_usbtemp_monitor_main(void *data)
 		if (chip->usb_temp_r < USB_50C && chip->usb_temp_l < USB_50C && vbus_volt < VBUS_VOLT_THRESHOLD)
 			delay = VBUS_MONITOR_INTERVAL;
 
-		if ((chip->usb_temp_r >= USB_57C && chip->usb_temp_r <= USB_100C)
-				|| (chip->usb_temp_l >= USB_57C && chip->usb_temp_l <= USB_100C)) {
+		if ((chip->usb_temp_r >= USB_57C)
+				|| (chip->usb_temp_l >= USB_57C)) {
 			for (i = 0; i < RETRY_COUNT; i++) {
 				mdelay(RETRY_CNT_DELAY);
 				oppo_get_usbtemp_volt(chip);
 				get_usb_temp(chip);
-				if (chip->usb_temp_r >= USB_57C)
+#ifdef ODM_WT_EDIT
+/*Junbo.Guo@ODM_WT.BSP.CHG 2020/1/7, add for usbtemp*/
+				if ((chip->usb_temp_r >= USB_57C)&&(abs(retry_usb_temp_r-chip->usb_temp_r)<5))
 					count_r++;
-				if (chip->usb_temp_l >= USB_57C)
+				if ((chip->usb_temp_l >= USB_57C)&&(abs(retry_usb_temp_l-chip->usb_temp_l)<5))
 					count_l++;
+				
+				retry_usb_temp_r = chip->usb_temp_r;
+				retry_usb_temp_l = chip->usb_temp_l;
+				pr_debug("high temp: %d,%d,%d,%d,%d,%d\n", chip->usb_temp_r, chip->usb_temp_l,retry_usb_temp_r,retry_usb_temp_l,count_r,count_l);
+#else
+				if(chip->usb_temp_r >= USB_57C)
+					count_r++;
+				if(chip->usb_temp_l >= USB_57C)
+					count_l++;
+#endif
 			}
 
 			if (count_r >= RETRY_COUNT || count_l >= RETRY_COUNT) {
@@ -1130,7 +1144,14 @@ static int oppo_usbtemp_monitor_main(void *data)
 					oppo_set_usb_status(USB_TEMP_HIGH);
 					if (oppo_chg_get_otg_online() == true) {
 						oppo_set_otg_switch_status(false);
-						usleep_range(10000, 11000);
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2019/12/23, wait for vbus fall to make sure otg disable*/
+						for(i = 0; i < 100 ; i++){
+							if(battery_get_vbus() < 2500)
+								break;
+							usleep_range(10000, 11000);
+						}
+#endif
 					}
 					if (oppo_vooc_get_fastchg_started() == true) {
 						oppo_chg_set_chargerid_switch_val(0);
@@ -1139,8 +1160,20 @@ static int oppo_usbtemp_monitor_main(void *data)
 						//msleep(20);//wait for turn-off fastchg MOS
 					}
 					chip->chg_ops->charging_disable();
+					if(chip->chg_ops->oppo_chg_set_hz_mode != NULL)
+						chip->chg_ops->oppo_chg_set_hz_mode(true);
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2019/12/23, disable sub charger*/
+					if(chip->is_double_charger_support)
+						chip->sub_chg_ops->charging_disable();
+#endif
 					usleep_range(10000, 11000);
 					chip->chg_ops->charger_suspend();
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2019/12/23, disable sub charger*/
+					if(chip->is_double_charger_support)
+						chip->sub_chg_ops->charger_suspend();
+#endif
 					usleep_range(10000, 11000);
 					pinctrl_select_state(chip->normalchg_gpio.pinctrl, chip->normalchg_gpio.dischg_enable);
 #endif
@@ -1158,8 +1191,8 @@ static int oppo_usbtemp_monitor_main(void *data)
 					last_usb_temp_l = chip->usb_temp_l;
 				}
 
-				if (((chip->usb_temp_r - last_usb_temp_r) >= 3 && chip->usb_temp_r >= USB_20C && chip->usb_temp_r <= USB_100C)
-						|| ((chip->usb_temp_l - last_usb_temp_l) >= 3 && chip->usb_temp_l >= USB_20C && chip->usb_temp_l <= USB_100C)) {
+				if (((chip->usb_temp_r - last_usb_temp_r) >= 3 && chip->usb_temp_r >= USB_20C)
+						|| ((chip->usb_temp_l - last_usb_temp_l) >= 3 && chip->usb_temp_l >= USB_20C)) {
 					for (i = 0; i < RETRY_COUNT; i++) {
 						mdelay(RETRY_CNT_DELAY);
 						oppo_get_usbtemp_volt(chip);
@@ -1179,7 +1212,14 @@ static int oppo_usbtemp_monitor_main(void *data)
 							oppo_set_usb_status(USB_TEMP_HIGH);
 							if (oppo_chg_get_otg_online() == true) {
 								oppo_set_otg_switch_status(false);
-								usleep_range(10000, 11000);
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2019/12/23, wait for vbus fall to make sure otg disable*/
+								for(i = 0; i < 100 ; i++){
+									if(battery_get_vbus() < 2500)
+										break;
+									usleep_range(10000, 11000);
+								}
+#endif
 							}
 							if (oppo_vooc_get_fastchg_started() == true) {
 								oppo_chg_set_chargerid_switch_val(0);
@@ -1188,8 +1228,20 @@ static int oppo_usbtemp_monitor_main(void *data)
 								//msleep(20);//wait for turn-off fastchg MOS
 							}
 							chip->chg_ops->charging_disable();
+							if(chip->chg_ops->oppo_chg_set_hz_mode != NULL)
+								chip->chg_ops->oppo_chg_set_hz_mode(true);
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2019/12/23, disable sub charger*/
+							if(chip->is_double_charger_support)
+								chip->sub_chg_ops->charging_disable();
+#endif
 							usleep_range(10000, 11000);
 							chip->chg_ops->charger_suspend();
+#ifdef ODM_WT_EDIT
+/*Shouli.Wang@ODM_WT.BSP.CHG 2019/12/23, disable sub charger*/
+							if(chip->is_double_charger_support)
+								chip->sub_chg_ops->charger_suspend();
+#endif
 							usleep_range(10000, 11000);
 							pinctrl_select_state(chip->normalchg_gpio.pinctrl, chip->normalchg_gpio.dischg_enable);
 #endif

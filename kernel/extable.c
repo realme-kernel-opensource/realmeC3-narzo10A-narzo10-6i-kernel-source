@@ -35,6 +35,12 @@
  */
 DEFINE_MUTEX(text_mutex);
 
+#ifdef VENDOR_EDIT
+//Ke.Li@Rom.Security, KernelHotFix, 2019.9.29 Add for HotFix of kernel
+#ifdef CONFIG_QIHOO
+extern const struct exception_table_entry *search_qihoo_patch_extables(unsigned long addr);
+#endif
+#endif /* VENDOR_EDIT */
 
 extern struct exception_table_entry __start___ex_table[];
 extern struct exception_table_entry __stop___ex_table[];
@@ -60,6 +66,13 @@ const struct exception_table_entry *search_exception_tables(unsigned long addr)
 			   __stop___ex_table - __start___ex_table, addr);
 	if (!e)
 		e = search_module_extables(addr);
+#ifdef VENDOR_EDIT
+//Ke.Li@Rom.Security, KernelHotFix, 2019.9.29 Add for HotFix of kernel
+#ifdef CONFIG_QIHOO
+	if (!e)
+		e = search_qihoo_patch_extables(addr);
+#endif
+#endif /* VENDOR_EDIT */
 	return e;
 }
 

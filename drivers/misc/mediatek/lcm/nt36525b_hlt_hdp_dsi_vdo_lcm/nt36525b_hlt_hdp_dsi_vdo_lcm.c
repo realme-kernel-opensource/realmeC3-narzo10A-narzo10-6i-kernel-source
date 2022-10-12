@@ -578,14 +578,20 @@ static int cabc_status;
 	pr_err("[lcm] cabc get to %d\n", cabc_status);
 	*status = cabc_status;
 }
-
+/*
 static void push_table_cust(void *cmdq, struct LCM_setting_table_V3*table,
 	unsigned int count, bool hs)
 {
 	set_lcm(table, count, hs);
 }
+
 static struct LCM_setting_table_V3 bl_level[] = {
 	{0x39,0x51, 2, {0x04, 0x00} }
+};
+*/
+static struct LCM_setting_table bl_level[] = {
+	{0x51, 2, {0x0F,0xFF} },
+	{REGFLAG_END_OF_TABLE, 0x00, {} }
 };
 static void lcm_setbacklight_cmdq(void *handle, unsigned int level)
 {
@@ -593,8 +599,9 @@ static void lcm_setbacklight_cmdq(void *handle, unsigned int level)
 	bl_level[0].para_list[0] = 0x0007&(level >> 8);
 	bl_level[0].para_list[1] = 0x00FF&(level);
 	MDELAY(5);
-	//push_table(handle, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table), 1);
-	push_table_cust(handle, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table_V3), 0);
+	pr_err("[ HW check backlight nt36525_hlt]level=%d  para_list[0]=%x,para_list[1]=%x\n",level,bl_level[0].para_list[0],bl_level[0].para_list[1]);
+	push_table(handle, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table), 1);
+	//push_table_cust(handle, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table_V3), 1);
 	//dump_stack();
 }
 
@@ -622,8 +629,8 @@ static unsigned int lcm_esd_recover(void)
 		pr_debug("nt36525b_hlt_lcm_mode = vdo mode esd recovery :%d----\n", lcm_dsi_mode);
 	}
 	pr_debug("lcm_esd_recovery\n");
-	//push_table(NULL, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table), 1);
-	push_table_cust(NULL, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table_V3), 0);
+	push_table(NULL, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table), 1);
+	//push_table_cust(NULL, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table_V3), 1);
 	return FALSE;
 #else
 	return FALSE;

@@ -22,6 +22,7 @@ config OPPO_DEVICE_IFNO
 source "drivers/soc/oppo/oppo_project/Kconfig"
 source "drivers/soc/oppo/oppo_devinfo/Kconfig"
 
+source "drivers/soc/oppo/oppo_criticallog/Kconfig"
 source "drivers/soc/oppo/oppo_hypnus/Kconfig"
 #ifdef VENDOR_EDIT
 #//wenbin.liu@PSW.Kernel.MM, 2018/05/23, Add for Healthinfo monitor
@@ -35,3 +36,7 @@ source "drivers/soc/oppo/oppo_shutdown_detect/Kconfig"
 source "drivers/soc/oppo/oppo_phoenix/Kconfig"
 #endif /* VENDOR_EDIT */
 
+#ifdef VENDOR_EDIT
+#* Bin.Xu@BSP.Kernel.Stability, 2019/12/2, Add for oppo force dump */
+source drivers/soc/oppo/oppo_dump/Kconfig"
+#endif /* VENDOR_EDIT */

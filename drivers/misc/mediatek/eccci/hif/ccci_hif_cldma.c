@@ -144,6 +144,41 @@ static int normal_tx_ring2queue[NORMAL_TXQ_NUM] = {
 #define UIDMASK 0x80000000
 
 #define TAG "cldma"
+#ifdef VENDOR_EDIT
+//Yongyao.Song#PSW.NW.PWR.1053636, 2017/08/01, add for modem wake up source
+//Yuanfei.Liu@PSW.NW.PWR.1257900.1284205, 2018/02/21, add for data wake up source 0,1,2
+#define MODEM_WAKEUP_SRC_NUM 10
+#define MD_LOG_WAKEUP_1 6
+#define MUXD_WAKEUP 10
+#define NVRAM_WAKEUP 14
+#define DATA_WAKEUP_0 20
+#define DATA_WAKEUP_1 21
+#define DATA_WAKEUP_2 22
+#define READ_AP_WAKEUP 32
+#define WCN_WAKEUP 34
+#define MD_LOG_WAKEUP_2 42
+#if (MD_GENERATION <= 6292)
+#define MD_LOG_WAKEUP_3 8
+#else
+#define MD_LOG_WAKEUP_3 7
+#endif
+#define IMS_WAKEUP 55
+#define MD_STATUS_WAKEUP 67
+#define AGPS_WAKEUP 167
+int data_wakeup_index = 3; /*if modem_wakeup_src_string changed, pls modify it too*/
+int modem_wakeup_src_count[MODEM_WAKEUP_SRC_NUM] = { 0 };
+char modem_wakeup_src_string[MODEM_WAKEUP_SRC_NUM][20] =
+        {"MD_LOG_WAKEUP",
+        "MUXD_WAKEUP",
+        "NVRAM_WAKEUP",
+        "DATA_WAKEUP",
+        "READ_AP_WAKEUP",
+        "WCN_WAKEUP",
+        "IMS_WAKEUP",
+        "MD_STATUS_WAKEUP",
+        "AGPS_WAKEUP",
+        "OTHER_WAKEUP"};
+#endif /* VENDOR_EDIT */
 
 /*for mt6763 ao_misc_cfg RW type set/clear register issue*/
 static inline void cldma_write32_ao_misc(struct md_cd_ctrl *md_ctrl,
@@ -562,6 +597,17 @@ static inline u32 cldma_reg_bit_scatter(u32 reg_g)
 }
 #endif
 
+#ifdef VENDOR_EDIT
+//Yongyao.Song@PSW.NW.PWR.1053636, 2017/08/01, add for modem wake up source
+void modem_clear_wakeupsrc_count(void)
+{
+    int i = 0;
+    for(i = 0; i < MODEM_WAKEUP_SRC_NUM; i++)
+    {
+        modem_wakeup_src_count[i] = 0;
+    }
+}
+#endif /* VENDOR_EDIT */
 /* may be called from workqueue or NAPI or tasklet (queue0) context,
  * only NAPI and tasklet with blocking=false
  */
@@ -988,6 +1034,10 @@ static int cldma_gpd_bd_tx_collect(struct md_cd_queue *queue,
 	struct sk_buff *skb_free;
 	int need_resume = 0;
 	int resume_done = 0;
+#ifdef VENDOR_EDIT
+//Yongyao.Song@PSW.NW.PWR.1053636, 2017/08/01, add for modem wake up source
+    int first_enter = 1;
+#endif /* VENDOR_EDIT */
 	while (1) {
 		spin_lock_irqsave(&queue->ring_lock, flags);
 		req = queue->tr_done;
@@ -1058,6 +1108,51 @@ static int cldma_gpd_bd_tx_collect(struct md_cd_queue *queue,
 				"CLDMA_AP wakeup source:(%d/%d)(%u)\n",
 				queue->index, ccci_h->channel,
 				md_ctrl->wakeup_count);
+            #ifdef VENDOR_EDIT
+            //Yongyao.Song@PSW.NW.PWR.1053636, 2017/08/01, add for modem wake up source
+            //Yuanfei.Liu@PSW.NW.PWR.1257900.1284205, 2018/02/21, add for data wake up source 0,1,2
+            if(first_enter == 1){
+                switch(ccci_h->channel){
+                    case MD_LOG_WAKEUP_1:
+                        modem_wakeup_src_count[0]++;
+                        break;
+                    case MUXD_WAKEUP:
+                        modem_wakeup_src_count[1]++;
+                        break;
+                    case NVRAM_WAKEUP:
+                        modem_wakeup_src_count[2]++;
+                        break;
+                    case DATA_WAKEUP_0:
+                    case DATA_WAKEUP_1:
+                    case DATA_WAKEUP_2:
+                        modem_wakeup_src_count[3]++;
+                        break;
+                   case READ_AP_WAKEUP:
+                        modem_wakeup_src_count[4]++;
+                        break;
+                   case WCN_WAKEUP:
+                        modem_wakeup_src_count[5]++;
+                        break;
+                    case MD_LOG_WAKEUP_2:
+                    case MD_LOG_WAKEUP_3:
+                        //channel 42 is the same with channel 6
+                        modem_wakeup_src_count[0]++;
+                        break;
+                    case IMS_WAKEUP:
+                        modem_wakeup_src_count[6]++;
+                        break;
+                    case MD_STATUS_WAKEUP:
+                        modem_wakeup_src_count[7]++;
+                        break;
+                    case AGPS_WAKEUP:
+                        modem_wakeup_src_count[8]++;
+                        break;
+                    default:
+                        modem_wakeup_src_count[9]++;
+                }
+                first_enter = 0;
+            }
+            #endif /* VENDOR_EDIT */
 		}
 		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
 			"harvest Tx msg (%x %x %x %x) txq=%d len=%d\n",
@@ -1131,6 +1226,10 @@ static int cldma_gpd_tx_collect(struct md_cd_queue *queue,
 	struct sk_buff *skb_free;
 	dma_addr_t dma_free;
 	unsigned int dma_len;
+#ifdef VENDOR_EDIT
+//Yongyao.Song@PSW.NW.PWR.1053636, 2017/08/01, add for modem wake up source
+    int first_enter = 1;
+#endif /* VENDOR_EDIT */
 
 	while (1) {
 		spin_lock_irqsave(&queue->ring_lock, flags);
@@ -1199,7 +1298,51 @@ static int cldma_gpd_tx_collect(struct md_cd_queue *queue,
 				"CLDMA_AP wakeup source:(%d/%d)(%u)\n",
 				queue->index, ccci_h->channel,
 				md_ctrl->wakeup_count);
-
+            #ifdef VENDOR_EDIT
+            //Yongyao.Song@PSW.NW.PWR.1053636, 2017/08/01, add for modem wake up source
+            //Yuanfei.Liu@PSW.NW.PWR.1257900.1284205, 2018/02/21, add for data wake up source 0,1,2
+            if(first_enter == 1){
+                switch(ccci_h->channel){
+                    case MD_LOG_WAKEUP_1:
+                        modem_wakeup_src_count[0]++;
+                        break;
+                    case MUXD_WAKEUP:
+                        modem_wakeup_src_count[1]++;
+                        break;
+                    case NVRAM_WAKEUP:
+                        modem_wakeup_src_count[2]++;
+                        break;
+                    case DATA_WAKEUP_0:
+                    case DATA_WAKEUP_1:
+                    case DATA_WAKEUP_2:
+                        modem_wakeup_src_count[3]++;
+                        break;
+                   case READ_AP_WAKEUP:
+                        modem_wakeup_src_count[4]++;
+                        break;
+                   case WCN_WAKEUP:
+                        modem_wakeup_src_count[5]++;
+                        break;
+                    case MD_LOG_WAKEUP_2:
+                    case MD_LOG_WAKEUP_3:
+                        //channel 42 is the same with channel 6
+                        modem_wakeup_src_count[0]++;
+                        break;
+                    case IMS_WAKEUP:
+                        modem_wakeup_src_count[6]++;
+                        break;
+                    case MD_STATUS_WAKEUP:
+                        modem_wakeup_src_count[7]++;
+                        break;
+                    case AGPS_WAKEUP:
+                        modem_wakeup_src_count[8]++;
+                        break;
+                    default:
+                        modem_wakeup_src_count[9]++;
+                }
+                first_enter = 0;
+            }
+            #endif /* VENDOR_EDIT */
 		}
 		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
 				"harvest Tx msg (%x %x %x %x) txq=%d len=%d\n",

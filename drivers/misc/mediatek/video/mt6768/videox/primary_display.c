@@ -2768,11 +2768,9 @@ static int init_decouple_buffers(void)
 	} else {
 		/* INTERNAL Buf 3 frames */
 		for (i = 0; i < DISP_INTERNAL_BUFFER_COUNT; i++) {
-			decouple_buffer_info[i] = allocat_decouple_buffer(
-								buffer_size);
-			if (decouple_buffer_info[i])
-				pgc->dc_buf[i] = decouple_buffer_info[i]->mva;
-			}
+			pgc->dc_buf[i] = i * buffer_size +
+			primary_display_get_frame_buffer_mva_address();
+		}
 	}
 
 	/* initialize rdma config */
@@ -8277,7 +8275,12 @@ int primary_display_setbacklight_nolock(unsigned int level)
 				mmprofile_log_ex(
 					ddp_mmp_get_events()->primary_set_bl,
 					MMPROFILE_FLAG_PULSE, 0, 7);
+#ifdef ODM_WT_EDIT
+//Hao.Liang@ODM_WT.MM.Display.Lcd, 2020/06/22, Modify always no backlight when aging test
+				_set_backlight_by_cmdq(level);
+#else
 				disp_lcm_set_backlight(pgc->plcm, NULL, level);
+#endif
 			} else {
 				_set_backlight_by_cmdq(level);
 			}

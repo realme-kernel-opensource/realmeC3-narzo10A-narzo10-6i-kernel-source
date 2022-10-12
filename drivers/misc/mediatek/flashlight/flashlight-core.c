@@ -1115,19 +1115,20 @@ static long _flashlight_ioctl(
 		break;
 
 	case FLASH_IOC_SET_ONOFF:
-		pr_debug("FLASH_IOC_SET_ONOFF(%d,%d,%d): %d\n",
-				type, ct, part, fl_arg.arg);
+		pr_info("FLASH_IOC_SET_ONOFF(%d,%d,%d): %d\n",
+				type, ct, part, fl_arg.arg);//liuxingyu@Camera.Driver, 2020/02/22, modify for debug flash time
 		mutex_lock(&fl_mutex);
                 /*weiriqin@camera.driver on 20190616, debug flashlight use mt6370 pmic first time*/
         #ifndef CONFIG_MTK_FLASHLIGHT_MT6370
 		#ifdef VENDOR_EDIT
 		/*Yijun.Tan@Camera.Driver 20180322 add for resove flash cann't be closed sometimes after poweroff */
-		gpio_set_value(pin_gpio_strobe,fl_arg.arg);
-		pr_err("FLASH_IOC_SET_ONOFF after set gpio to %d",fl_arg.arg);
+		//gpio_set_value(pin_gpio_strobe,fl_arg.arg); // liuxingyu@Camera.Driver, 2020/02/22, monet not use
+		//pr_err("FLASH_IOC_SET_ONOFF after set gpio to %d",fl_arg.arg);
 		#endif
         #endif
 		ret = fl_enable(fdev, fl_arg.arg);
 		mutex_unlock(&fl_mutex);
+		pr_info("FLASH_IOC_SET_ONOFF end"); //liuxingyu@Camera.Driver, 2020/02/22, add for debug flash time
 		break;
 
 	case FLASH_IOC_GET_DUTY_NUMBER:

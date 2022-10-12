@@ -2863,8 +2863,14 @@ static int mt6358_amic_enable(struct mt6358_priv *priv)
 			regmap_write(priv->regmap,
 				     MT6358_AUDENC_ANA_CON10, 0x0161);
 		else
+#ifdef ODM_WT_EDIT
+            // Zengchao.Duan@ODM_WT.MM.Audiodriver.Machine, 2020/01/21, Add for change ACCDET MICBIAS to 2.7V
+            regmap_write(priv->regmap,
+                     MT6358_AUDENC_ANA_CON10, 0x0071);
+#else
 			regmap_write(priv->regmap,
 				     MT6358_AUDENC_ANA_CON10, 0x0061);
+#endif
 	}
 
 	/* set mic pga gain */
@@ -3137,8 +3143,14 @@ static int mt6358_vow_amic_enable(struct mt6358_priv *priv)
 			regmap_write(priv->regmap,
 				     MT6358_AUDENC_ANA_CON10, 0x0161);
 		else
+#ifdef ODM_WT_EDIT
+            // Zengchao.Duan@ODM_WT.MM.Audiodriver.Machine, 2020/01/21, Add for change ACCDET MICBIAS to 2.7V
+            regmap_write(priv->regmap,
+                     MT6358_AUDENC_ANA_CON10, 0x0071);
+#else
 			regmap_write(priv->regmap,
 				     MT6358_AUDENC_ANA_CON10, 0x0061);
+#endif
 	}
 	/* mic bias 0 */
 	if (mux_pga_l == PGA_MUX_AIN2) {

@@ -213,4 +213,8 @@ source "drivers/tee/Kconfig"
 
 source "drivers/mux/Kconfig"
 
+#ifdef VENDOR_EDIT
+#Ke.Li@Rom.Security, KernelHotFix, 2019.9.29 Add for HotFix of kernel
+source "drivers/qihoo/Kconfig"
+#endif /* VENDOR_EDIT */
 endmenu

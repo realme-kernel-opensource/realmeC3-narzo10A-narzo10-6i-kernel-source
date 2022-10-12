@@ -331,6 +331,21 @@ struct IMGSENSOR_HW_POWER_SEQ sensor_power_sequence[] = {
 		},
 	},
 #endif
+#if defined(MONET_HLT_FRONT_GC5035B)
+	{
+	     SENSOR_DRVNAME_MONET_HLT_FRONT_GC5035B,
+		{
+			{PDN, Vol_Low, 0},
+			{RST, Vol_Low, 3},
+			{DOVDD, Vol_1800, 1},
+			{DVDD, Vol_1200, 1},
+			{AVDD, Vol_2800, 1},
+			{RST, Vol_High, 1},
+			{PDN, Vol_High, 3},
+			{SensorMCLK, Vol_High, 3},
+		},
+	},
+#endif
 #if defined(MONETX_TRULY_MAIN_S5KGM1SP)
 	{
 		SENSOR_DRVNAME_MONETX_TRULY_MAIN_S5KGM1SP,
@@ -364,7 +379,7 @@ struct IMGSENSOR_HW_POWER_SEQ sensor_power_sequence[] = {
 	{
 		SENSOR_DRVNAME_MONETX_HLT_MACRO_GC2385,
 		{
-			{RST, Vol_Low, 1, Vol_High, 1},
+			{RST, Vol_Low, 1, Vol_Low, 1},
 			{DOVDD, Vol_1800, 5, Vol_Low, 5},
 			{AVDD, Vol_2800, 5, Vol_Low, 5},
 			{SensorMCLK, Vol_High, 3, Vol_Low, 5},

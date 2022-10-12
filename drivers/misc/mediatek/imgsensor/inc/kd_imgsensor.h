@@ -218,6 +218,7 @@
 #define MONETX_HLT_MACRO_GC2385_SENSOR_ID 0x2385
 #define MONETD_TRULY_OV12A10_SENSOR_ID          0x1241 +1
 #define MONET_GC5035_SENSOR_ID                  0x5035 + 1
+#define MONET_GC5035B_SENSOR_ID                 0x5035 + 2
 #endif /* ODM_WT_EDIT */
 #ifdef ODM_WT_EDIT
 //DuiLin.Qin@ODM_WT.CAMERA.Driver.2019/10/14,Add for camera bring up
@@ -476,6 +477,7 @@
 #define SENSOR_DRVNAME_MONETX_OFILM_FRONT_OV16A1Q         "monetx_ofilm_front_ov16a1q"
 #define SENSOR_DRVNAME_MONETX_HLT_MACRO_GC2385            "monetx_hlt_macro_gc2385"
 #define SENSOR_DRVNAME_MONET_HLT_CUSTFRONT_GC5035         "monet_hlt_custfront_gc5035"
+#define SENSOR_DRVNAME_MONET_HLT_FRONT_GC5035B            "monet_hlt_front_gc5035B"
 #endif
 #define SENSOR_DRVNAME_S5K2LQSX_MIPI_RAW        "s5k2lqsx_mipi_raw"
 #define SENSOR_DRVNAME_S5K4H7_MIPI_RAW          "s5k4h7_mipi_raw"

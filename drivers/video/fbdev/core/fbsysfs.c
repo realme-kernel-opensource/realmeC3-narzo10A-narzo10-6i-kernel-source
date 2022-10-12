@@ -401,6 +401,7 @@ extern char Lcm_name1[256];
 static ssize_t show_panel_name(struct device *device,
 			 struct device_attribute *attr, char *buf)
 {
+	struct fb_info *fb_info = dev_get_drvdata(device);
 
 	return snprintf(buf, PAGE_SIZE, "%s\n", Lcm_name1);
 }

@@ -62,7 +62,7 @@ enum {
 
 struct fp_data {
         struct device *dev;
-#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6785
+#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6768
         struct platform_device *pdev;
         struct pinctrl *gpio_id0_pinctrl;
         struct pinctrl_state *gpio_id0_pull_up;

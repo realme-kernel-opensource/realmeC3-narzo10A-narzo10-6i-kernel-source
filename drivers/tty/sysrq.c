@@ -346,6 +346,7 @@ static int dump_processes(void)
 {
     int i, j;
     int score_adj[37]={0};
+    long score_adj_pss[37]={0};
     short oom_score_adj;
     struct task_struct *tsk;
 

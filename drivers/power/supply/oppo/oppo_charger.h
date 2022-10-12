@@ -371,6 +371,8 @@ struct oppo_chg_limits {
 	int	batt_temp_extend_t2_to_t3_ichg;
 	int	batt_temp_extend_t3_to_t4_ichg;
 	int	batt_temp_extend_t4_to_t5_ichg;
+	int	batt_temp_extend_t4_to_t5_ichg2;
+	int	batt_temp_extend_t4_to_t5_ichg3;
 
 	int charge_current_calling_ma;
 #endif /*ODM_WT_EDIT*/
@@ -788,6 +790,7 @@ struct oppo_chg_operations {
 	int (*oppo_chg_pe20_setup)(void);
 	int (*oppo_chg_reset_pe20)(void);
 	int (*oppo_chg_set_high_vbus)(bool en);
+	int (*oppo_chg_set_hz_mode)(bool en);
 #endif
 };
 

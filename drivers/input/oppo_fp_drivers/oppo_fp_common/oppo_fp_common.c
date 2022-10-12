@@ -109,6 +109,10 @@ static char fp_manu[FP_ID_MAX_LENGTH] = CHIP_UNKNOWN; /* the length of this stri
 static struct fp_data *fp_data_ptr = NULL;
 char g_engineermode_menu_config[ENGINEER_MENU_SELECT_MAXLENTH] = ENGINEER_MENU_DEFAULT;
 
+#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6768
+	int g_fingerprint = -1;
+#endif
+
 #if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6785
 
 fp_module_config_t fp_module_config_list[] = {
@@ -159,6 +163,22 @@ static int fp_gpio_parse_dts(struct fp_data *fp_data)
         ret = FP_ERROR_GENERAL;
         goto exit;
     }
+	
+#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6768
+
+	if (fp_data->pdev) {
+		fp_data->gpio_id0_pinctrl = devm_pinctrl_get(fp_data->dev);
+		if (IS_ERR(fp_data->gpio_id0_pinctrl)) {
+			ret = PTR_ERR(fp_data->gpio_id0_pinctrl);
+			pr_err("%s can't find gpio_id0_pinctrl pinctrl\n", __func__);
+			return ret;
+		}
+	} else {
+		pr_err("%s platform device is null\n", __func__);
+		return -1;
+	}
+#endif
+
 
 #if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6785
 		if (fp_data->pdev) {
@@ -282,7 +302,32 @@ static int fp_register_proc_fs(struct fp_data *fp_data)
     int fp_id_pull_down_value = 0;
 #endif
 
+#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6768
+
+	fp_data->gpio_id0_pull_up = pinctrl_lookup_state(fp_data->gpio_id0_pinctrl, "gpio_id0_up");
+	if (IS_ERR(fp_data->gpio_id0_pull_up)) {
+			dev_err(fp_data->dev, "Can't find gpio_id0_pull_up pinctrl state\n");
+			return PTR_ERR(fp_data->gpio_id0_pull_up);
+	}
+	fp_data->gpio_id0_pull_down = pinctrl_lookup_state(fp_data->gpio_id0_pinctrl, "gpio_id0_down");
+	if (IS_ERR(fp_data->gpio_id0_pull_down)) {
+			dev_err(fp_data->dev, "Can't find gpio_id0_pull_down pinctrl state\n");
+			return PTR_ERR(fp_data->gpio_id0_pull_down);
+	}
+
+	gpio_direction_output(fp_data->gpio_id0, 1);
+	pinctrl_select_state(fp_data->gpio_id0_pinctrl, fp_data->gpio_id0_pull_up);
+	gpio_direction_input(fp_data->gpio_id0);
+	mdelay(2);
+
 	fp_data->fp_id0 = gpio_get_value(fp_data->gpio_id0);
+    g_fingerprint = fp_data->fp_id0;
+	
+    gpio_direction_output(fp_data->gpio_id0, 0);
+	pinctrl_select_state(fp_data->gpio_id0_pinctrl, fp_data->gpio_id0_pull_down);
+	gpio_direction_input(fp_data->gpio_id0);
+#endif
+
 
 #if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6785
 
@@ -363,6 +408,10 @@ static int oppo_fp_common_probe(struct platform_device *fp_dev)
     }
 
     fp_data->dev = dev;
+	
+#if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6768
+    fp_data->pdev = fp_dev;
+#endif
 #if CONFIG_OPPO_FINGERPRINT_PLATFORM == 6785
     fp_data->pdev = fp_dev;
 #endif

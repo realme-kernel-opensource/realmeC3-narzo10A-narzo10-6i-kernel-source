@@ -680,7 +680,11 @@ static int initAF(void)
 		char puSendCmd[2] = {0x00, 0x00}; /* soft power on */
 		char puSendCmd2[2] = {0x01, 0x39};
 		char puSendCmd3[2] = {0x05, 0x65};
-
+		#ifdef ODM_WT_EDIT
+		/*Tian.Tian@ODM_WT.CAMERA.Driver.2019/10/18,Add for camera af*/
+		g_pstAF_I2Cclient->addr = AF_I2C_SLAVE_ADDR;
+		g_pstAF_I2Cclient->addr = g_pstAF_I2Cclient->addr >> 1;
+		#endif
 		i4RetValue = i2c_master_send(g_pstAF_I2Cclient, puSendCmd, 2);
 
 		if (i4RetValue < 0) {
@@ -791,7 +795,17 @@ int AK7374AF_Release(struct inode *a_pstInode, struct file *a_pstFile)
 	if (*g_pAF_Opened == 2) {
 		int i4RetValue = 0;
 		char puSendCmd[2] = {0x00, 0x01};
-
+		#ifdef ODM_WT_EDIT
+		/*Tian.Tian@ODM_WT.CAMERA.Driver.2019/10/18,Add for camera af*/
+		s4AF_WriteReg(250);
+		msleep(15);
+		s4AF_WriteReg(200);
+		msleep(15);
+		s4AF_WriteReg(150);
+		msleep(15);
+		s4AF_WriteReg(100);
+		msleep(15);
+		#endif
 		LOG_INF("apply\n");
 
 		i4RetValue = i2c_master_send(g_pstAF_I2Cclient, puSendCmd, 2);

@@ -271,7 +271,29 @@ cpu_available_count(struct cpumask *cluster_mask)
 	return cpumask_weight(&mask);
 }
 
+static int hypnus_unisolate_cpu(struct hypnus_data *pdata, unsigned int cpu)
+{
+	int ret = 0;
 
+	if (cpu_isolated(cpu) && !pdata->cpu_data[cpu].not_preferred) {
+		ret = pdata->cops->unisolate_cpu(cpu);
+		if (ret)
+			pr_err("Unisolate CPU%u failed! err %d\n", cpu, ret);
+	}
+
+	return ret;
+}
+
+static int hypnus_isolate_cpu(struct hypnus_data *pdata, unsigned int cpu)
+{
+	int ret;
+
+	ret = pdata->cops->isolate_cpu(cpu);
+	if (ret)
+		pr_err("Isolate CPU%u failed! err %d\n", cpu, ret);
+
+	return ret;
+}
 
 long hypnus_ioctl_submit_cpunr(struct hypnus_data *pdata,
 	unsigned int cmd, void *data)

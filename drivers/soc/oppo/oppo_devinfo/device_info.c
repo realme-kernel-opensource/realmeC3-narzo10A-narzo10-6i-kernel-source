@@ -324,6 +324,7 @@ static int subboard_verify(struct devinfo_data *const devinfo_data)
 {
 	int ret = 0;
 	int id1 = -1;
+  	int id2 = -1;
 	static int operator = OPERATOR_UNKOWN ;
 
 	DEVINFO_MSG("Enter\n");

@@ -2393,7 +2393,7 @@ void task_dirty_inc(struct task_struct *tsk);
 //Qiao.Hu@BSP.BaseDrv.CHG.Basic, 2017/12/13, transplant checklist for increasing the default max readahead to speed-up reading
 #define VM_MAX_READAHEAD	128	/* kbytes */
 #else
-#define VM_MAX_READAHEAD	512	/* kbytes */
+#define VM_MAX_READAHEAD	128	/* kbytes */
 #endif /*VENDOR_EDIT*/
 #define VM_MIN_READAHEAD	16	/* kbytes (includes current page) */
 

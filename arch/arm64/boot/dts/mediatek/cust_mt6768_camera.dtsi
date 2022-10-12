@@ -312,9 +312,9 @@
 /*XingYu.Liu@ODM_WT.CAMERA.Driver.2019/10/11,modify camera name*/
 /*Zhen.Quan@Camera.Driver, 2019/11/7, add for [otp bringup] */
 	cam0_enable_sensor = "monet_truly_main_ov12a10 monetd_truly_main_ov12a10";
-	cam1_enable_sensor = "monet_hlt_front_gc5035 monet_txd_front_hi556 monet_hlt_custfront_gc5035";
+	cam1_enable_sensor = "monet_hlt_front_gc5035 monet_txd_front_hi556 monet_hlt_custfront_gc5035 monet_hlt_front_gc5035B";
 	cam3_enable_sensor = "monet_hlt_depth_ov02a1b";
-	cam4_enable_sensor = "monet_hlt_macro_gc2375h monet_lh_macro_gc2375h monetd_cxt_depth_gc2375h monetd_lh_depth_gc2375h";
+	cam4_enable_sensor = "monet_hlt_macro_gc2375h monet_lh_macro_gc2375h monetd_cxt_depth_gc2375h";
 //#endif /*ODM_WT_EDIT*/
 	pinctrl-names = "default",
 			"cam0_rst0", "cam0_rst1",

@@ -1,0 +1,28 @@
+menuconfig QIHOO
+	tristate "qihoo kernel hotfix patch"
+	default y
+	select ARM64_MODULE_CMODEL_LARGE if ARM64_ERRATUM_843419
+	help
+	This is the kernel hotfix patch
+
+if QIHOO
+
+config QIHOO_KERNEL_CHECK
+	tristate "check kernel build timestamps and kernel version"
+	default y
+	help
+	  Say Y here to enable check kernel version and build time.
+
+config QIHOO_SIGN_CHECK
+	tristate "check patch sign info when load patch"
+	default y
+	help
+	  Say Y here to enable check patch signature.
+
+config QIHOO_USE_KERNEL_FRAME
+	tristate "use kernel frame code for patch load"
+	default y
+	help
+	  Say Y here to enable use kernel frame code.
+
+endif # QIHOO

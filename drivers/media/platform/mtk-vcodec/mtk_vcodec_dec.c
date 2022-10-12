@@ -24,6 +24,7 @@
 #include "mtk_vcodec_util.h"
 #include "mtk_vcodec_dec_pm.h"
 #include "vdec_drv_if.h"
+#include "smi_public.h"
 
 #define MTK_VDEC_MIN_W  64U
 #define MTK_VDEC_MIN_H  64U
@@ -234,7 +235,7 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 				ctx->id, free_frame_buffer->status,
 				dstbuf->vb.vb2_buf.index,
 				dstbuf->queued_in_vb2);
-			v4l2_m2m_buf_queue(ctx->m2m_ctx, &dstbuf->vb);
+			v4l2_m2m_buf_queue_check(ctx->m2m_ctx, &dstbuf->vb);
 		} else if ((dstbuf->queued_in_vb2 == false) &&
 				   (dstbuf->queued_in_v4l2 == true)) {
 			/*
@@ -251,7 +252,7 @@ static struct vb2_buffer *get_free_buffer(struct mtk_vcodec_ctx *ctx)
 				"[%d]status=%x queue id=%d to rdy_queue",
 				ctx->id, free_frame_buffer->status,
 				dstbuf->vb.vb2_buf.index);
-			v4l2_m2m_buf_queue(ctx->m2m_ctx, &dstbuf->vb);
+			v4l2_m2m_buf_queue_check(ctx->m2m_ctx, &dstbuf->vb);
 			dstbuf->queued_in_vb2 = true;
 		} else {
 			/*
@@ -720,7 +721,7 @@ static void mtk_vdec_worker(struct work_struct *work)
 		src_vb2_v4l2->flags |= V4L2_BUF_FLAG_LAST;
 		clean_free_bs_buffer(ctx, NULL);
 		ctx->dec_flush_buf->lastframe = EOS;
-		v4l2_m2m_buf_queue(ctx->m2m_ctx, &ctx->dec_flush_buf->vb);
+		v4l2_m2m_buf_queue_check(ctx->m2m_ctx, &ctx->dec_flush_buf->vb);
 	} else if ((ret == 0) && ((fourcc == V4L2_PIX_FMT_RV40) ||
 		(fourcc == V4L2_PIX_FMT_RV30) ||
 		(res_chg == false && need_more_output == false))) {
@@ -842,7 +843,7 @@ static int vidioc_decoder_cmd(struct file *file, void *priv,
 			return 0;
 		}
 		ctx->dec_flush_buf->lastframe = EOS;
-		v4l2_m2m_buf_queue(ctx->m2m_ctx, &ctx->dec_flush_buf->vb);
+		v4l2_m2m_buf_queue_check(ctx->m2m_ctx, &ctx->dec_flush_buf->vb);
 		v4l2_m2m_try_schedule(ctx->m2m_ctx);
 		break;
 
@@ -881,6 +882,36 @@ void mtk_vdec_lock(struct mtk_vcodec_ctx *ctx, u32 hw_id)
 	mtk_v4l2_debug(4, "ctx %p [%d] hw_id %d", ctx, ctx->id, hw_id);
 	while (hw_id < MTK_VDEC_HW_NUM && ret != 0)
 		ret = down_interruptible(&ctx->dev->dec_sem[hw_id]);
+}
+
+void mtk_vdec_hw_break(struct mtk_vcodec_ctx *ctx)
+{
+	u32 cg_status = 0;
+	void __iomem *vdec_misc_addr = ctx->dev->dec_reg_base[VDEC_MISC];
+	void __iomem *vdec_vld_addr = ctx->dev->dec_reg_base[VDEC_VLD];
+	struct timeval tv_start;
+	struct timeval tv_end;
+	u32 usec;
+
+	/* hw break */
+	writel((readl(vdec_misc_addr + 0x0100) | 0x1),
+		   vdec_misc_addr + 0x0100);
+
+	do_gettimeofday(&tv_start);
+	cg_status = readl(vdec_misc_addr + 0x0104);
+	while (!((cg_status & 0x1) && (cg_status & 0x10))) {
+		do_gettimeofday(&tv_end);
+		usec = (tv_end.tv_sec - tv_start.tv_sec) * 1000000 +
+		       (tv_end.tv_usec - tv_start.tv_usec);
+		if (usec > 20000)
+			mtk_v4l2_err("VDEC HW break timeout");
+
+		cg_status = readl(vdec_misc_addr + 0x0104);
+	}
+
+	/* sw reset */
+	writel(0x1, vdec_vld_addr + 0x0108);
+	writel(0x0, vdec_vld_addr + 0x0108);
 }
 
 void mtk_vcodec_dec_empty_queues(struct file *file, struct mtk_vcodec_ctx *ctx)
@@ -1933,7 +1964,7 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 		buf = container_of(vb2_v4l2, struct mtk_video_dec_buf, vb);
 		mutex_lock(&ctx->buf_lock);
 		if (buf->used == false) {
-			v4l2_m2m_buf_queue(ctx->m2m_ctx, vb2_v4l2);
+			v4l2_m2m_buf_queue_check(ctx->m2m_ctx, vb2_v4l2);
 			buf->queued_in_vb2 = true;
 			buf->queued_in_v4l2 = true;
 			buf->ready_to_display = false;
@@ -1948,7 +1979,7 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
 		return;
 	}
 
-	v4l2_m2m_buf_queue(ctx->m2m_ctx, to_vb2_v4l2_buffer(vb));
+	v4l2_m2m_buf_queue_check(ctx->m2m_ctx, to_vb2_v4l2_buffer(vb));
 
 	if (ctx->state != MTK_STATE_INIT) {
 		mtk_v4l2_debug(4, "[%d] already init driver %d",

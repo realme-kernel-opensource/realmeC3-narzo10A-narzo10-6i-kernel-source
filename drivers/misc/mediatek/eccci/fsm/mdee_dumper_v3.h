@@ -231,5 +231,12 @@ struct mdee_dumper_v3 {
 	unsigned char ex_pl_info[MD_HS1_FAIL_DUMP_SIZE];
 };
 
+//#ifdef VENDOR_EDIT
+//Wentian.Mai@PSW.NW.EM.1448074, 2018/06/26
+//Add for monitor modem crash
+#define MODEM_MONITOR_ID          509    //modem crash
+#define BUF_LOG_LENGTH            2148
+unsigned int BKDRHash(const char* str, unsigned int len);
+//#endif /*VENDOR_EDIT*/
 #endif	/* __MDEE_DUMPER_V3_H__ */
 

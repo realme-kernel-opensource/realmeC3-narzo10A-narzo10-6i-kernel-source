@@ -56,6 +56,8 @@ struct imgsensor_mode_struct {
 	 * different scenario	*/
 	kal_uint8 mipi_data_lp2hs_settle_dc;
 
+	kal_uint32 mipi_pixel_rate;//Yang.Guo@ODM_WT.CAMERA.Driver 2557613,2019/12/12, Add PIXEL_RATE test for cts testDualCameraPreview
+
 	/*	 following for GetDefaultFramerateByScenario()	*/
 	kal_uint16 max_framerate;
 };

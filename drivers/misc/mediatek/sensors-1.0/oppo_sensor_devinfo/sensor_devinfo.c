@@ -450,8 +450,10 @@ static int __init sensordev_init(void)
 	init_sensor_calibraiton_paramater();
 
 	INIT_DELAYED_WORK(&sensor_work, sensor_dev_work);
+#ifndef ODM_WT_EDIT
+//Li Tao@ODM_WT.BSP.Sensors.Config, 2020/03/10, Add for fixing crash issue
 	schedule_delayed_work(&sensor_work, msecs_to_jiffies(SENSOR_DEVINFO_SYNC_FIRST_TIME));
-
+#endif
 	return 0;
 }
 

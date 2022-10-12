@@ -416,11 +416,6 @@ static struct LCM_setting_table init_setting_vdo[] = {
 	{REGFLAG_DELAY, 20, {} },
 };
 
-static struct LCM_setting_table bl_level[] = {
-	/* { 0xFF, 0x03, {0x98, 0x81, 0x00} }, */
-	{0x51, 2, {0x04, 0x00} },
-	{REGFLAG_END_OF_TABLE, 0x00, {} }
-};
 
 static void push_table(void *cmdq, struct LCM_setting_table *table,
 	unsigned int count, unsigned char force_update)
@@ -724,12 +719,23 @@ static int cabc_status;
 }
 
 
+/*
+static struct LCM_setting_table_V3 bl_level[] = {
+	{0x39,0x51, 2, {0x04, 0x00} }
+};*/
+
+static struct LCM_setting_table bl_level[] = {
+	{0x51, 2, {0x0F,0xFF} },
+	{REGFLAG_END_OF_TABLE, 0x00, {} }
+};
 static void lcm_setbacklight_cmdq(void *handle, unsigned int level)
 {
 	pr_debug("ili9881h_txd backlight_level = %d\n", level);
 	bl_level[0].para_list[0] = 0x000F&(level >> 7);
 	bl_level[0].para_list[1] = 0x00FF&(level << 1);
+	pr_err("[ HW check backlight ili9881+txd]level=%d  para_list[0]=%x,para_list[1]=%x\n",level,bl_level[0].para_list[0],bl_level[0].para_list[1]);
 	push_table(handle, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table), 1);
+	//push_table_cust(handle, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table_V3), 0);
 }
 
 static unsigned int lcm_esd_recover(void)
@@ -751,6 +757,7 @@ static unsigned int lcm_esd_recover(void)
 	}
 	pr_debug("lcm_esd_recovery\n");
 	push_table(NULL, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table), 1);
+	//push_table_cust(NULL, bl_level, sizeof(bl_level) / sizeof(struct LCM_setting_table_V3), 0);
 	return FALSE;
 #else
 	return FALSE;

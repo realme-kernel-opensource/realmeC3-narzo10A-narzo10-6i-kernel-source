@@ -2860,6 +2860,7 @@ defined(CONFIG_MTK_CAM_SECURITY_SUPPORT)
 	vdec_gcon: vdec_gcon@16000000 {
 		compatible = "mediatek,vdec_gcon", "syscon";
 		reg = <0 0x16000000 0 0x1000>,		/* VDEC_SYS */
+			 <0 0x16020000 0 0x400>,		/* VDEC_VLD */
 			 <0 0x16025000 0 0x1000>;		/* VDEC_MISC */
 #ifdef CONFIG_MTK_IOMMU_V2
 		iommus = <&iommu M4U_PORT_HW_VDEC_MC_EXT>;
@@ -3304,8 +3305,13 @@ defined(CONFIG_MTK_CAM_SECURITY_SUPPORT)
 		compatible = "mediatek,ccu";
 		reg = <0 0x1a0b1000 0 0x10000>;
 		interrupts = <GIC_SPI 261 IRQ_TYPE_LEVEL_LOW>;
-		clocks = <&camsys CLK_CAM_CCU>;
-		clock-names = "CCU_CLK_CAM_CCU";
+//#ifdef ODM_WT_EDIT
+/*XingYu.Liu@ODM_WT.CAMERA.Driver.2020/01/13,Add for aging test reboot ALPS04962043*/
+		clocks = <&camsys CLK_CAM_CCU>,
+			<&scpsys SCP_SYS_CAM>;
+		clock-names = "CCU_CLK_CAM_CCU",
+			"CAM_PWR";
+//#endif /* ODM_WT_EDIT */
 #ifdef CONFIG_MTK_IOMMU_V2
 		iommus = <&iommu M4U_PORT_CAM_CCUG>;
 #endif

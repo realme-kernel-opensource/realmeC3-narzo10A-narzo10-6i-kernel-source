@@ -48,6 +48,8 @@ struct ccu_device_s {
 	unsigned long n3d_a_base;
 	unsigned int irq_num;
 	struct mutex user_mutex;
+/*Duilin.Qin@ODM_WT.CAMERA.Driver.2020/02/07,Add for aging test reboot ALPS04972135*/
+	struct mutex clk_mutex;
 	/* list of vlist_type(struct ccu_user_s) */
 	struct list_head user_list;
 	/* notify enque thread */

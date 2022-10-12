@@ -42,6 +42,9 @@ static irqreturn_t mmc_gpio_cd_irqt(int irq, void *dev_id)
 #ifdef ODM_WT_EDIT
 //Mingyao.Xie@ODM_WT.BSP.Storage.Emmc, 2019/10/31, Modify for Sdcard
 	pmic_config_interface_nolock(0x1CD8, 0x0, 0x1, 0x0); //new add to disable VMCH
+//jianmin.Niu@ODM_WT.BSP.Storage.Emmc, 2020/01/15, Modify for Sdcard
+	pmic_config_interface_nolock(0x1cc6,0x1,0x1,0);
+	pmic_config_interface_nolock(0x1cc4,0x0,0x1,0); //add here for disable VMC
 #endif
 	host->trigger_card_event = true;
 	

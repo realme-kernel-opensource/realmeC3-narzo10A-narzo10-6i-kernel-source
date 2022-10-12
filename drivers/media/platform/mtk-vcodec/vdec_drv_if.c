@@ -193,6 +193,9 @@ void vdec_decode_prepare(void *ctx_prepare,
 {
 	struct mtk_vcodec_ctx *ctx = (struct mtk_vcodec_ctx *)ctx_prepare;
 
+    if (ctx == NULL)
+        return;
+
 	mtk_vdec_pmqos_prelock(ctx);
 	mtk_vdec_lock(ctx, hw_id);
 	mtk_vdec_pmqos_begin_frame(ctx);
@@ -208,7 +211,11 @@ void vdec_decode_unprepare(void *ctx_unprepare,
 {
 	struct mtk_vcodec_ctx *ctx = (struct mtk_vcodec_ctx *)ctx_unprepare;
 
+    if (ctx == NULL)
+        return;
+
 	disable_irq(ctx->dev->dec_irq[hw_id]);
+	mtk_vdec_hw_break(ctx);
 	mtk_vcodec_dec_clock_off(&ctx->dev->pm, hw_id);
 	mtk_vcodec_set_curr_ctx(ctx->dev, NULL);
 

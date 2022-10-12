@@ -172,5 +172,9 @@ out:
 	if (ret == 0)
 		ret = err;
 	trace_ext4_sync_file_exit(inode, ret);
+#if defined(VENDOR_EDIT) && defined(CONFIG_EXT4_ASYNC_DISCARD_SUPPORT)
+//yh@PSW.BSP.Storage.EXT4, 2018-11-26 add for ext4 async discard suppot
+	ext4_update_time(EXT4_SB(inode->i_sb));
+#endif
 	return ret;
 }

@@ -185,3 +185,7 @@ obj-$(CONFIG_FSI)		+= fsi/
 obj-$(CONFIG_TEE)		+= tee/
 obj-$(CONFIG_MULTIPLEXER)	+= mux/
 obj-$(CONFIG_TRUSTY)	+= trusty/
+#ifdef VENDOR_EDIT
+#Ke.Li@Rom.Security, KernelHotFix, 2019.9.29 Add for HotFix of kernel
+obj-$(CONFIG_QIHOO)             += qihoo/
+#endif /* VENDOR_EDIT */
